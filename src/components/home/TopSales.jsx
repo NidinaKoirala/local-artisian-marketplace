@@ -14,17 +14,21 @@ const TopSales = ({ addToCart }) => {
       try {
         const response = await fetch(`${backendUrl}/items`);
         const data = await response.json();
-        setTopSales(data.items.slice(0, 5)); // Only get the latest 5 products
+
+        // Sort items by soldQuantity in descending order
+        const sortedItems = data.items.sort((a, b) => b.soldQuantity - a.soldQuantity);
+        setTopSales(sortedItems.slice(0, 5)); // Only get the top 5 items
       } catch (error) {
-        console.error("Error fetching top sales:", error);
+        console.error('Error fetching top sales:', error);
       }
     };
+
     fetchTopSales();
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCountdown(prev => (prev > 0 ? prev - 1 : 86400));
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 86400));
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -45,8 +49,13 @@ const TopSales = ({ addToCart }) => {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Top Sales</h2>
         <div className="flex items-center space-x-4">
-          <p className="text-gray-600">Offer expires in: <span className="text-red-500">{formatTime(countdown)}</span></p>
-          <Link to="/collection" className="px-3 py-1 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors">
+          <p className="text-gray-600">
+            Offer expires in: <span className="text-red-500">{formatTime(countdown)}</span>
+          </p>
+          <Link
+            to="/collection"
+            className="px-3 py-1 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
+          >
             Shop More
           </Link>
         </div>
@@ -54,19 +63,22 @@ const TopSales = ({ addToCart }) => {
       <p className="text-lg text-red-600 mb-4">Get discount up to 80%</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {topSales.map((product) => (
-          <div 
-            key={product.id} 
+          <div
+            key={product.id}
             className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
             onClick={() => handleProductClick(product)}
           >
-            <ProductSlider images={product.photos.map(photo => photo.url)} />
+            <ProductSlider images={product.photos?.map((photo) => photo.url) || []} />
             <div className="p-3">
               <h3 className="font-bold text-md mb-1">{product.title}</h3>
               <p className="text-gray-800 font-semibold mb-1">Price: ${product.price}</p>
-              <p className="text-green-600 text-xs mb-1">Sold: {product.sold || 'N/A'} items</p>
-              <p className="text-red-500 text-xs mb-1">Discount: {product.discount || 'N/A'}%</p>
+              <p className="text-green-600 text-xs mb-1">Sold: {product.soldQuantity || 0} items</p>
+              <p className="text-red-500 text-xs mb-1">Discount: {product.discount || 0}%</p>
               <button
-                onClick={(e) => { e.stopPropagation(); addToCart(product); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(product);
+                }}
                 className="mt-2 w-full bg-indigo-600 text-white py-1 rounded-lg font-medium hover:bg-indigo-500 transition-colors"
               >
                 Add to Cart
