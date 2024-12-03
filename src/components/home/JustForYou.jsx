@@ -25,8 +25,20 @@ const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, 
                 <div className="p-4">
                   <h3 className="font-semibold text-lg text-gray-800 mb-1">{product.title}</h3>
                   <p className="text-gray-600 text-sm mb-3">{product.description}</p>
-                  <p className="text-gray-800 font-semibold mb-2">Price: ${product.price}</p>
-                  
+                  <p className="text-gray-800 font-semibold mb-2">
+                    Price: 
+                    {product.discount > 0 ? (
+                      <>
+                        <span className="line-through text-gray-500 ml-2">${product.price.toFixed(2)}</span>{' '}
+                        <span className="text-red-500">
+                          ${(product.price - (product.price * product.discount) / 100).toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <span> ${product.price.toFixed(2)}</span>
+                    )}
+                  </p>
+        
                   {/* Rating Display */}
                   {product.rating && <div className="mb-2">{renderStars(product.rating)}</div>}
         

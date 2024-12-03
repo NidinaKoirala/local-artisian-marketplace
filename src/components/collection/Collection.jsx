@@ -225,16 +225,28 @@ const Collection = ({ addToCart }) => {
                 <div className="p-5">
                   <h3 className="font-bold text-xl mb-2 text-gray-800">{product.title}</h3>
                   <p className="text-gray-600 mb-2 text-sm">{product.description}</p>
-                  <p className="text-gray-800 font-semibold mb-4">Price: ${product.price}</p>
+                  <p className="text-gray-800 font-semibold mb-4">
+                    Price:{" "}
+                    {product.discount > 0 ? (
+                      <>
+                        <span className="line-through text-gray-500">${product.price.toFixed(2)}</span>{" "}
+                        <span className="text-red-500">
+                          ${(product.price - (product.price * product.discount) / 100).toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <span>${product.price.toFixed(2)}</span>
+                    )}
+                  </p>
 
                   {product.rating && renderStars(product.rating)}
 
                   <p
                     className={`text-sm font-semibold ${
-                      product.inStock > 5 ? 'text-green-600' : 'text-red-600'
+                      product.inStock > 5 ? "text-green-600" : "text-red-600"
                     }`}
                   >
-                    {product.inStock > 5 ? `In Stock: ${product.inStock}` : 'Low Stock'}
+                    {product.inStock > 5 ? `In Stock: ${product.inStock}` : "Low Stock"}
                   </p>
 
                   <button

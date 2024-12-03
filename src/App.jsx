@@ -21,6 +21,8 @@ import SellerPage from './components/seller/SellerPage';
 import SellerOrders from './components/seller/SellerOrders';
 import AddProductPage from './components/products/AddProductPage';
 import CategoryPage from './components/collection/CategoryPage';
+import AllReviews from './components/products/AllReviews';
+
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -88,7 +90,7 @@ const App = () => {
         <Route path="/seller" element={<SellerPage />} />
         <Route path="/seller/orders" element={<SellerOrders />} /> {/* Orders Page for Seller */}
         <Route path="/seller/add-product" element={<AddProductPage onAddProduct={handleAddProduct} />} /> {/* Add Product Page */}
-
+        <Route path="/product/:productName/:productId/all-reviews" element={<AllReviews />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       </main>        

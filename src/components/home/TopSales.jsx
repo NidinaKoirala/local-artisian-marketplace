@@ -71,7 +71,19 @@ const TopSales = ({ addToCart }) => {
             <ProductSlider images={product.photos?.map((photo) => photo.url) || []} />
             <div className="p-3">
               <h3 className="font-bold text-md mb-1">{product.title}</h3>
-              <p className="text-gray-800 font-semibold mb-1">Price: ${product.price}</p>
+              <p className="text-gray-800 font-semibold mb-1">
+                Price:{' '}
+                {product.discount > 0 ? (
+                  <>
+                    <span className="line-through text-gray-500">${product.price.toFixed(2)}</span>{' '}
+                    <span className="text-red-500">
+                      ${(product.price - (product.price * product.discount) / 100).toFixed(2)}
+                    </span>
+                  </>
+                ) : (
+                  <span>${product.price.toFixed(2)}</span>
+                )}
+              </p>
               <p className="text-green-600 text-xs mb-1">Sold: {product.soldQuantity || 0} items</p>
               <p className="text-red-500 text-xs mb-1">Discount: {product.discount || 0}%</p>
               <button

@@ -5,8 +5,12 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [orderHistory, setOrderHistory] = useState([]);
-  const [showProfileDetails, setShowProfileDetails] = useState(false); // Toggle profile details
+  const [reviews, setReviews] = useState([]);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [message, setMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); // For success messages
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [review, setReview] = useState({ rating: 0, comment: '' });
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -51,8 +55,97 @@ const UserProfile = () => {
     }
   };
 
+  const fetchProductDetails = async (itemId) => {
+    try {
+      const response = await fetch(`${backendUrl}/items/${itemId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch product details');
+      }
+
+      const product = await response.json();
+      return product;
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+      alert('Failed to fetch product details.');
+    }
+  };
+
+  const handleProductClick = async (order) => {
+    try {
+      const productDetails = await fetchProductDetails(order.itemId);
+      if (!productDetails) {
+        alert('Invalid product data for review.');
+        return;
+      }
+      setSelectedProduct(productDetails);
+      setReview({ rating: 0, comment: '' });
+    } catch (error) {
+      console.error('Error handling product click:', error);
+    }
+  };
+
+  const handleReviewSubmit = async () => {
+    if (!review.rating || !review.comment) {
+      alert('Please provide both a rating and a comment.');
+      return;
+    }
+
+    if (!selectedProduct || !selectedProduct.id) {
+      alert('Invalid product selected for review.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${backendUrl}/items/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          itemId: selectedProduct.id,
+          rating: review.rating,
+          comment: review.comment,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit review');
+      }
+
+      setReviews((prevReviews) => [
+        ...prevReviews,
+        { itemId: selectedProduct.id, comment: review.comment, rating: review.rating },
+      ]);
+
+      setSuccessMessage('Review submitted successfully!');
+      setSelectedProduct(null);
+
+      setTimeout(() => setSuccessMessage(''), 3000); // Clear message after 3 seconds
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert(error.message || 'An unexpected error occurred.');
+    }
+  };
+
   const toggleProfileDetails = () => {
     setShowProfileDetails((prev) => !prev);
+  };
+
+  const renderStars = (rating) => {
+    const filledStars = Math.floor(rating);
+    const halfStar = rating % 1 !== 0;
+    const totalStars = 5;
+    return (
+      <div className="flex items-center mb-2">
+        {[...Array(filledStars)].map((_, i) => (
+          <span key={i} className="text-yellow-400">&#9733;</span>
+        ))}
+        {halfStar && <span className="text-yellow-400">&#9734;</span>}
+        {[...Array(totalStars - filledStars - (halfStar ? 1 : 0))].map((_, i) => (
+          <span key={i} className="text-gray-300">&#9733;</span>
+        ))}
+      </div>
+    );
   };
 
   if (message && !user) {
@@ -65,6 +158,13 @@ const UserProfile = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
+      {/* Success Message */}
+      {successMessage && (
+        <div className="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
+          {successMessage}
+        </div>
+      )}
+
       <h2 className="text-3xl font-semibold text-gray-800 mb-4">Your Orders</h2>
       <div className="mb-8">
         {orderHistory.length === 0 ? (
@@ -78,16 +178,30 @@ const UserProfile = () => {
                 <th className="border border-gray-300 px-4 py-2 text-left">Item</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Quantity</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Price</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Review</th>
               </tr>
             </thead>
             <tbody>
               {orderHistory.map((order) => (
-                <tr key={order.orderId} className="hover:bg-gray-50">
+                <tr
+                  key={order.orderId}
+                  className={`hover:bg-gray-50 ${
+                    reviews.some((review) => review.itemId === order.itemId) ? 'bg-green-100' : ''
+                  }`}
+                >
                   <td className="border border-gray-300 px-4 py-2">{order.orderId}</td>
                   <td className="border border-gray-300 px-4 py-2">{new Date(order.orderDate).toLocaleString()}</td>
                   <td className="border border-gray-300 px-4 py-2">{order.itemName}</td>
                   <td className="border border-gray-300 px-4 py-2">{order.quantity}</td>
                   <td className="border border-gray-300 px-4 py-2">${order.itemPrice.toFixed(2)}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <button
+                      onClick={() => handleProductClick(order)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500"
+                    >
+                      Review
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -95,6 +209,47 @@ const UserProfile = () => {
         )}
       </div>
 
+      {/* Review Modal */}
+      {selectedProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+            <h3 className="text-xl font-semibold mb-4">Write a Review for {selectedProduct.title}</h3>
+            <textarea
+              value={review.comment}
+              onChange={(e) => setReview({ ...review, comment: e.target.value })}
+              placeholder="Write your review..."
+              className="w-full p-2 border rounded"
+            />
+            <div className="flex items-center space-x-4 mt-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  className={`text-2xl ${review.rating >= star ? 'text-yellow-500' : 'text-gray-400'}`}
+                  onClick={() => setReview({ ...review, rating: star })}
+                >
+                  &#9733;
+                </button>
+              ))}
+            </div>
+            <div className="flex justify-end mt-4 space-x-4">
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReviewSubmit}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Submit Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Details */}
       <button
         onClick={toggleProfileDetails}
         className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors"
