@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const OrderList = ({ orders }) => {
@@ -13,36 +12,23 @@ const OrderList = ({ orders }) => {
             <tr className="bg-gray-100">
               <th className="py-2 px-4">Order ID</th>
               <th className="py-2 px-4">Customer</th>
+              <th className="py-2 px-4">Contact</th>
+              <th className="py-2 px-4">Item</th>
               <th className="py-2 px-4">Amount</th>
-              <th className="py-2 px-4">Status</th>
-              <th className="py-2 px-4">Actions</th>
+              <th className="py-2 px-4">Quantity</th>
+              <th className="py-2 px-4">Order Date</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="border-b hover:bg-gray-50">
-                <td className="py-2 px-4">{order.id}</td>
+              <tr key={order.orderId} className="border-b hover:bg-gray-50">
+                <td className="py-2 px-4">{order.orderId}</td>
                 <td className="py-2 px-4">{order.customerName}</td>
-                <td className="py-2 px-4">${order.totalAmount.toFixed(2)}</td>
-                <td className="py-2 px-4">
-                  <span
-                    className={`px-2 py-1 rounded-full text-sm ${
-                      order.status === 'pending'
-                        ? 'bg-yellow-200 text-yellow-700'
-                        : order.status === 'completed'
-                        ? 'bg-green-200 text-green-700'
-                        : 'bg-red-200 text-red-700'
-                    }`}
-                  >
-                    {order.status}
-                  </span>
-                </td>
-                <td className="py-2 px-4">
-                  <button className="text-blue-600 hover:underline">View</button>
-                  {order.status === 'pending' && (
-                    <button className="ml-2 text-green-600 hover:underline">Mark as Completed</button>
-                  )}
-                </td>
+                <td className="py-2 px-4">{order.customerPhone || 'N/A'}</td>
+                <td className="py-2 px-4">{order.itemName}</td>
+                <td className="py-2 px-4">${(order.itemPrice * order.quantity).toFixed(2)}</td>
+                <td className="py-2 px-4">{order.quantity}</td>
+                <td className="py-2 px-4">{new Date(order.orderDate).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
