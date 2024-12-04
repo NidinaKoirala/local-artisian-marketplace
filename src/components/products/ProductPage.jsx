@@ -150,7 +150,7 @@ const ProductPage = ({ addToCart, isLoggedIn, cartItems, setCartItems }) => {
         </p>
 
         {/* Rating Display */}
-        {product.rating && renderStars(product.rating)}
+        {product.rating > 0 && renderStars(product.rating)}
 
         {/* Stock Information */}
         <p className={`text-sm font-semibold ${product.inStock > 5 ? 'text-green-600' : 'text-red-600'}`}>

@@ -239,7 +239,7 @@ const Collection = ({ addToCart }) => {
                     )}
                   </p>
 
-                  {product.rating && renderStars(product.rating)}
+                  {product.rating > 0 && renderStars(product.rating)}
 
                   <p
                     className={`text-sm font-semibold ${

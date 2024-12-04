@@ -40,7 +40,7 @@ const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, 
                   </p>
         
                   {/* Rating Display */}
-                  {product.rating && <div className="mb-2">{renderStars(product.rating)}</div>}
+                  {product.rating > 0 && renderStars(product.rating)}
         
                   {/* Stock Display with Conditional Styling */}
                   <p className={`text-sm font-semibold ${product.inStock > 5 ? 'text-green-600' : 'text-red-600'}`}>
