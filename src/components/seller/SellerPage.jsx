@@ -133,7 +133,15 @@ const SellerPage = () => {
                   <p className="text-gray-500">Sold: {topSellingProduct().soldQuantity || 0}</p>
                 </div>
               </div>
-
+              {/* Button to Navigate to Add Product Page */}
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={() => navigate('/seller/add-product')}
+                  className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors"
+                >
+                  + Add New Product
+                </button>
+              </div>
               {/* Latest Orders */}
               <section className="mt-8">
                 <h2 className="text-2xl font-semibold mb-4">Latest Orders</h2>
