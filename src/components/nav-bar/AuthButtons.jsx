@@ -9,17 +9,17 @@ const AuthButtons = ({ handleNavigateToLogin }) => {
       >
         Login to Buy
       </button>
-      <button
-        onClick={() => handleNavigateToLogin("/seller")}
-        className="text-xs sm:text-sm text-black transition-colors hover:text-gray-700"
-      >
-        Become a Seller
-      </button>
       <Link
-        to="/signup"
+        to="/signup/user"
         className="text-xs sm:text-sm text-black transition-colors hover:text-gray-700"
       >
-        Signup
+        Signup as Buyer
+      </Link>
+      <Link
+        to="/signup/seller"
+        className="text-xs sm:text-sm text-black transition-colors hover:text-gray-700"
+      >
+        Signup as Seller
       </Link>
     </div>
   );

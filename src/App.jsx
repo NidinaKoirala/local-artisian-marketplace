@@ -6,9 +6,9 @@ import Collection from './components/collection/Collection';
 import About from './components/details/AboutUs';
 import Contact from './components/details/Contact';
 import Login from './components/login-signup/Login';
-import Signup from './components/login-signup/SignUp';
+import BuyerSignup from './components/login-signup/BuyerSignUp';
+import SellerSignup from './components/login-signup/SellerSignup';
 import PlaceOrder from './components/order/PlaceOrder';
-// import Order from './pages/Order';
 import './index.css';
 import Navbar from './components/nav-bar/Navbar';
 import Footer from './components/footer/Footer';
@@ -27,10 +27,14 @@ const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [products, setProducts] = useState([]); // To store added products
+  const [role, setRole] = useState(null); // Role of the logged-in user
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     setIsLoggedIn(!!storedUser);
+    if (storedUser?.role) {
+      setRole(storedUser.role);
+    }
   }, []);
 
   const addToCart = (product) => {
@@ -50,50 +54,64 @@ const App = () => {
     setProducts((prevProducts) => [...prevProducts, newProduct]);
   };
 
-  // Check if the user is a seller
-  const isSeller = localStorage.getItem('isSeller') === 'true';
-
   return (
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <Navbar />
       <main className="main-content">
-      <Routes>
-        {/* Redirect seller from '/' to '/seller' */}
-        <Route
-          path="/"
-          element={isSeller ? <Navigate to="/seller" replace /> : <HomePage addToCart={addToCart} />}
-        />
-        <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
-        <Route path="/collection" element={<Collection addToCart={addToCart} />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path='/search' element={<SearchResults />} />
-        <Route 
-          path="/product/:productName/:productId" 
-          element={
-            <ProductPage 
-              addToCart={addToCart} 
-              cartItems={cartItems} 
-              setCartItems={setCartItems} 
-              isLoggedIn={isLoggedIn} 
-            />
-          } 
-        />
-        <Route path="/category/:category" element={<CategoryPage />} />
-        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/place-order" element={isLoggedIn ? <PlaceOrder cartItems={cartItems} /> : <Navigate to="/login" state={{ redirectTo: '/place-order' }} />} />
-        {/* <Route path="/orders" element={<Order />} /> */}
-        <Route path="/profile" element={<UserProfile />} />
+        <Routes>
+          {/* Redirect seller from '/' to '/seller' */}
+          <Route
+            path="/"
+            element={
+              role === 'seller' ? (
+                <Navigate to="/seller" replace />
+              ) : (
+                <HomePage addToCart={addToCart} />
+              )
+            }
+          />
+          <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
+          <Route path="/collection" element={<Collection addToCart={addToCart} />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/search" element={<SearchResults />} />
+          <Route
+            path="/product/:productName/:productId"
+            element={
+              <ProductPage
+                addToCart={addToCart}
+                cartItems={cartItems}
+                setCartItems={setCartItems}
+                isLoggedIn={isLoggedIn}
+              />
+            }
+          />
+          <Route path="/category/:category" element={<CategoryPage />} />
+          <Route
+            path="/login"
+            element={<Login setIsLoggedIn={setIsLoggedIn} setRole={setRole} />}
+          />
+          <Route path="/signup/user" element={<BuyerSignup />} />
+          <Route path="/signup/seller" element={<SellerSignup />} />          <Route
+            path="/place-order"
+            element={
+              isLoggedIn ? (
+                <PlaceOrder cartItems={cartItems} />
+              ) : (
+                <Navigate to="/login" state={{ redirectTo: '/place-order' }} />
+              )
+            }
+          />
+          <Route path="/profile" element={<UserProfile />} />
 
-        {/* Seller Routes */}
-        <Route path="/seller" element={<SellerPage />} />
-        <Route path="/seller/orders" element={<SellerOrders />} /> {/* Orders Page for Seller */}
-        <Route path="/seller/add-product" element={<AddProductPage onAddProduct={handleAddProduct} />} /> {/* Add Product Page */}
-        <Route path="/product/:productName/:productId/all-reviews" element={<AllReviews />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      </main>        
+          {/* Seller Routes */}
+          <Route path="/seller" element={<SellerPage />} />
+          <Route path="/seller/orders" element={<SellerOrders />} />
+          <Route path="/seller/add-product" element={<AddProductPage onAddProduct={handleAddProduct} />} />
+          <Route path="/product/:productName/:productId/all-reviews" element={<AllReviews />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </main>
       <Footer />
       <Chatbot />
     </div>
