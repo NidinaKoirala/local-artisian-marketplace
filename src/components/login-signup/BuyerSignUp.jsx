@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 
-const BuyerSignUp = () => {
+const BuyerSignup = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -11,6 +11,7 @@ const BuyerSignUp = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    phoneNumber: '',
     address: '',
     city: '',
     state: '',
@@ -55,6 +56,7 @@ const BuyerSignUp = () => {
         email: '',
         password: '',
         confirmPassword: '',
+        phoneNumber: '',
         address: '',
         city: '',
         state: '',
@@ -129,6 +131,15 @@ const BuyerSignUp = () => {
           />
           <input
             type="text"
+            name="phoneNumber"
+            placeholder="Phone Number"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-md text-gray-700 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
+          <input
+            type="text"
             name="address"
             placeholder="Address"
             value={formData.address}
@@ -187,30 +198,29 @@ const BuyerSignUp = () => {
         </p>
       </div>
       {showSuccess && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">User account created successfully!</h3>
-          <p className="text-gray-600 mb-4">You can now log in as a buyer to explore the platform.</p>
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={() => navigate('/login')}
-              className="py-2 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-500 transition-colors"
-            >
-              Go to Login
-            </button>
-            <button
-              onClick={() => setShowSuccess(false)}
-              className="py-2 px-4 bg-gray-300 text-gray-800 rounded-lg font-medium hover:bg-gray-400 transition-colors"
-            >
-              Close
-            </button>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">User account created successfully!</h3>
+            <p className="text-gray-600 mb-4">You can now log in as a buyer to explore the platform.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => navigate('/login')}
+                className="py-2 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-500 transition-colors"
+              >
+                Go to Login
+              </button>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="py-2 px-4 bg-gray-300 text-gray-800 rounded-lg font-medium hover:bg-gray-400 transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
-
+      )}
     </div>
   );
 };
 
-export default BuyerSignUp;
+export default BuyerSignup;
