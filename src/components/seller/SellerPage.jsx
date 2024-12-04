@@ -4,6 +4,7 @@ import { MdClose } from 'react-icons/md';
 
 const SellerPage = () => {
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]); // For latest 5 orders
   const [loading, setLoading] = useState(true);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const navigate = useNavigate();
@@ -25,16 +26,25 @@ const SellerPage = () => {
 
     const fetchSellerDetails = async () => {
       try {
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'
-          }/products/seller-details?userId=${userId}`
+        // Fetch products
+        const productResponse = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'}/products/seller-details?userId=${userId}`
         );
-        if (!response.ok) {
+        if (!productResponse.ok) {
           throw new Error('Failed to fetch seller details');
         }
-        const data = await response.json();
-        setProducts(data || []);
+        const productData = await productResponse.json();
+        setProducts(productData || []);
+
+        // Fetch latest 5 orders
+        const ordersResponse = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'}/order/forsellers?userId=${userId}&limit=5`
+        );
+        if (!ordersResponse.ok) {
+          throw new Error('Failed to fetch latest orders');
+        }
+        const ordersData = await ordersResponse.json();
+        setOrders(ordersData.orders || []);
       } catch (error) {
         console.error('Error fetching seller details:', error);
       } finally {
@@ -124,15 +134,38 @@ const SellerPage = () => {
                 </div>
               </div>
 
-              {/* Button to Navigate to Add Product Page */}
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={() => navigate('/seller/add-product')}
-                  className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors"
-                >
-                  + Add New Product
-                </button>
-              </div>
+              {/* Latest Orders */}
+              <section className="mt-8">
+                <h2 className="text-2xl font-semibold mb-4">Latest Orders</h2>
+                <div className="bg-white shadow-md rounded-lg p-6">
+                  {orders.length === 0 ? (
+                    <p className="text-gray-600">No orders available</p>
+                  ) : (
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="py-2 px-4">Order ID</th>
+                          <th className="py-2 px-4">Customer</th>
+                          <th className="py-2 px-4">Item</th>
+                          <th className="py-2 px-4">Total Price</th>
+                          <th className="py-2 px-4">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orders.map((order) => (
+                          <tr key={order.orderId} className="border-b hover:bg-gray-50">
+                            <td className="py-2 px-4">{order.orderId}</td>
+                            <td className="py-2 px-4">{order.customerName}</td>
+                            <td className="py-2 px-4">{order.itemName}</td>
+                            <td className="py-2 px-4">${order.totalPrice.toFixed(2)}</td>
+                            <td className="py-2 px-4">{new Date(order.orderDate).toLocaleDateString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </section>
 
               {/* Product Management Section */}
               <section className="mt-8">
