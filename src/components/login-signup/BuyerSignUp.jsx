@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 
-const BuyerSignup = () => {
+const BuyerSignUp = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -213,4 +213,4 @@ const BuyerSignup = () => {
   );
 };
 
-export default BuyerSignup;
+export default BuyerSignUp;
