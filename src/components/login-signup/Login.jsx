@@ -58,7 +58,7 @@ const Login = ({ setIsLoggedIn }) => {
       // Redirect based on role
       if (user.role === 'seller') {
         localStorage.setItem('isSeller', 'true'); // Mark as seller
-        navigate('/seller'); // Redirect to seller dashboard
+        navigate('/'); // Redirect to seller dashboard
         window.location.reload(); // Refresh the page to apply changes
       } else {
         localStorage.removeItem('isSeller'); // Ensure non-sellers don't have seller flag
