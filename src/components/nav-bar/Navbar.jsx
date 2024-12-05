@@ -6,17 +6,13 @@ import NavItems from "./NavItems";
 import CartIcon from "./CartIcon";
 import AuthButtons from "./AuthButtons";
 import UserMenu from "./UserMenu";
-import SearchBar from "./SearchBar";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSeller, setIsSeller] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
   const navbarBackgroundColor = "bg-[#d2cff9]";
 
@@ -43,11 +39,7 @@ const Navbar = () => {
   const handleNavigateToLogin = (redirectTo) => {
     navigate("/login", { state: { redirectTo } });
   };
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+
   const handleLogout = async () => {
     try {
       const response = await fetch(
@@ -97,22 +89,6 @@ const Navbar = () => {
 
           {/* Right Section - AuthButtons/UserMenu and CartIcon */}
           <div className="flex items-center gap-0 md:gap-4">
-            {showSearch ? (
-              <SearchBar
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                handleSearch={handleSearch}
-                clearSearch={() => setSearchQuery("")}
-              />
-            ) : (
-              location.pathname === "/collection" && (
-                <BiSearch
-                  className="w-5 h-5 cursor-pointer text-gray-600 hover:text-white transition-colors duration-200"
-                  onClick={() => setShowSearch(true)}
-                />
-              )
-            )}
-
             {isLoggedIn ? (
               <UserMenu isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
             ) : (
@@ -125,7 +101,6 @@ const Navbar = () => {
             <CartIcon cartCount={cartCount} />
           </div>
         </div>
-
 
         {/* Auth and Navigation Items for smaller screens */}
         <div

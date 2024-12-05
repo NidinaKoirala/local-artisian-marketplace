@@ -15,6 +15,7 @@ const Collection = ({ addToCart }) => {
   const [autoSlideIndex, setAutoSlideIndex] = useState(0);
   const [sortOrder, setSortOrder] = useState('relevant');
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const productsPerPage = 12;
   const categoriesPerPage = 15;
@@ -44,9 +45,9 @@ const Collection = ({ addToCart }) => {
     window.scrollTo(0, 0);
   }, [currentPage, categoryPage]);
 
-  const filteredProducts = selectedCategory === 'All'
-    ? items
-    : items.filter(product => product.category === selectedCategory);
+  const filteredProducts = items
+  .filter(product => selectedCategory === 'All' || product.category === selectedCategory)
+  .filter(product => product.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const sortedProducts = filteredProducts.sort((a, b) => {
     if (sortOrder === 'highToLow') return b.price - a.price;
@@ -153,6 +154,7 @@ const Collection = ({ addToCart }) => {
         </div>
       )}
 
+
       <div className={`w-full md:w-1/4 mb-6 md:mb-0 pr-4 hidden md:flex flex-col h-full bg-white`}>
         <h2 className="text-2xl font-semibold mb-4 text-gray-700">Categories</h2>
         <ul className="space-y-3">
@@ -192,19 +194,28 @@ const Collection = ({ addToCart }) => {
           </button>
         </div>
       </div>
-
       <div className="w-full md:w-3/4 ml-0 md:ml-1/4">
-        <div className="flex justify-end items-center mb-4">
-          <select
-            onChange={(e) => setSortOrder(e.target.value)}
-            value={sortOrder}
-            className="p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-600"
-          >
-            <option value="relevant">Relevant</option>
-            <option value="highToLow">Price: High to Low</option>
-            <option value="lowToHigh">Price: Low to High</option>
-          </select>
-        </div>
+      <div className="flex flex-wrap items-center justify-end mb-4 gap-4">
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-600 w-full md:w-40"
+        />
+      
+        {/* Sort Dropdown */}
+        <select
+          onChange={(e) => setSortOrder(e.target.value)}
+          value={sortOrder}
+          className="p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-600 w-full md:w-auto"
+        >
+          <option value="relevant">Relevant</option>
+          <option value="highToLow">Price: High to Low</option>
+          <option value="lowToHigh">Price: Low to High</option>
+        </select>
+      </div>
         {loading ? (
           <div className="flex justify-center my-6">
             <p className="text-gray-600">Loading products...</p>
