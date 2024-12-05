@@ -46,14 +46,38 @@ const UserProfile = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch order history');
       }
-
+  
       const data = await response.json();
-      setOrderHistory(data.orders);
+  
+      // Fetch status for each order and assign colors
+      const ordersWithStatus = await Promise.all(
+        data.orders.map(async (order) => {
+          const statusResponse = await fetch(
+            `${backendUrl}/order/status?orderId=${order.orderId}`
+          );
+          const statusData = await statusResponse.json();
+  
+          // Add color for each status
+          const statusColors = {
+            Received: 'bg-blue-500 text-white',
+            Packed: 'bg-yellow-500 text-white',
+            'Ready to Ship': 'bg-orange-500 text-white',
+            Delivered: 'bg-green-500 text-white',
+          };
+  
+          const statusClass = statusColors[statusData.status] || 'bg-gray-500 text-white';
+  
+          return { ...order, status: statusData.status, statusClass };
+        })
+      );
+  
+      setOrderHistory(ordersWithStatus);
     } catch (error) {
       console.error(error);
       setMessage(error.message || 'An error occurred while fetching order history.');
     }
   };
+  
 
   const fetchProductDetails = async (itemId) => {
     try {
@@ -177,6 +201,7 @@ const UserProfile = () => {
                 <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Item</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Status</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Price</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Review</th>
               </tr>
@@ -193,15 +218,25 @@ const UserProfile = () => {
                   <td className="border border-gray-300 px-4 py-2">{new Date(order.orderDate).toLocaleString()}</td>
                   <td className="border border-gray-300 px-4 py-2">{order.itemName}</td>
                   <td className="border border-gray-300 px-4 py-2">{order.quantity}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <span className={`px-3 py-1 rounded-lg text-sm font-medium ${order.statusClass}`}>
+                      {order.status}
+                    </span>
+                  </td>
                   <td className="border border-gray-300 px-4 py-2">${order.itemPrice.toFixed(2)}</td>
                   <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      onClick={() => handleProductClick(order)}
-                      className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500"
-                    >
-                      Review
-                    </button>
-                  </td>
+                   <button
+                     onClick={() => handleProductClick(order)}
+                     className={`px-3 py-1 rounded ${
+                       order.status === 'Delivered'
+                         ? 'bg-blue-600 text-white hover:bg-blue-500'
+                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                     }`}
+                     disabled={order.status !== 'Delivered'}
+                   >
+                     Review
+                   </button>
+                 </td>
                 </tr>
               ))}
             </tbody>
