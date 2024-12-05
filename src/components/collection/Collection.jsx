@@ -220,7 +220,11 @@ const Collection = ({ addToCart }) => {
           <div className="flex justify-center my-6">
             <p className="text-gray-600">Loading products...</p>
           </div>
-        ) : (
+           ) : currentProducts.length === 0 ? (
+             <div className="flex justify-center my-6">
+               <p className="text-gray-600 text-lg font-semibold">No results found</p>
+             </div>
+           ) : (          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {currentProducts.map((product) => (
               <div
