@@ -34,13 +34,20 @@ const Login = ({ setIsLoggedIn }) => {
   
       const data = await response.json();
       const { user } = data;
-  
+       // Construct fullName from firstName, middleName, and lastName
+       const fullName = [
+         user.firstName,
+         user.middleName || '', // Handle middleName being optional
+         user.lastName,
+       ]
+         .filter(Boolean) // Remove any empty strings
+         .join(' '); // Join non-empty parts with a space
       // Save user details and role in localStorage
       localStorage.setItem(
         'user',
         JSON.stringify({
           id: user.id,
-          fullName: user.username,
+          fullName: fullName || user.username, // Fallback to username if no names are provided
           email: user.email,
           role: user.role, // Save the role ('user' or 'seller')
         })

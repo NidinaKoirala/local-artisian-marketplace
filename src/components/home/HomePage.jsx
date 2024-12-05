@@ -16,7 +16,8 @@ const HomePage = ({ addToCart }) => {
   const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
-  const [userName, setUserName] = useState(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +52,9 @@ const HomePage = ({ addToCart }) => {
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser && storedUser.fullName) {
-      setUserName(storedUser.fullName);
+      const [first, ...rest] = storedUser.fullName.split(' ');
+      setFirstName(first);
+      setLastName(rest.join(' '));
     }
 
     const messageInterval = setInterval(() => {
@@ -104,12 +107,16 @@ const HomePage = ({ addToCart }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {userName && (
-        <div className="bg-indigo-600 text-white text-center py-3">
-          <h2 className="text-xl font-semibold">Welcome Back, {userName}!</h2>
-        </div>
-      )}
-
+     {(firstName || lastName) && (
+       <div className="relative bg-gradient-to-r from-gray-50 via-gray-200 to-gray-50 text-center py-6 shadow-md rounded-lg mx-4 md:mx-20 my-6">
+         <h2 className="text-2xl md:text-4xl font-bold text-indigo-700 animate-bounce">
+           Welcome Back,{" "}
+           <span className="text-yellow-500 animate-pulse">
+             {firstName} {lastName}
+           </span>
+         </h2>
+       </div>
+     )}
       {showNewsletterPopup && <Newsletterbox mode="popup" closeNewsletter={closeNewsletterPopup} />}
 
       {/* Banner Section */}
