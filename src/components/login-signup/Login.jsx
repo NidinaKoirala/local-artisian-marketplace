@@ -64,6 +64,7 @@ const Login = ({ setIsLoggedIn }) => {
         localStorage.removeItem('isSeller'); // Ensure non-sellers don't have seller flag
         const redirectTo = location.state?.redirectTo || '/';
         navigate(redirectTo); // Redirect buyers to intended page or home
+        window.location.reload();
         window.scrollTo(0, 0); // Scroll to top of the page        
       }
   
