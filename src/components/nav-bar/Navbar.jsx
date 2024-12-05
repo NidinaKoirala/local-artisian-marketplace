@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { assets } from "../../assets/assets";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { BiSearch } from "react-icons/bi";
+import { Link, useNavigate } from "react-router-dom";
 import NavItems from "./NavItems";
 import CartIcon from "./CartIcon";
 import AuthButtons from "./AuthButtons";
 import UserMenu from "./UserMenu";
 
-const Navbar = () => {
+const Navbar = ({ cartItems }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSeller, setIsSeller] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
 
   const navbarBackgroundColor = "bg-[#d2cff9]";
@@ -65,6 +63,9 @@ const Navbar = () => {
     }
   };
 
+  // Dynamically calculate cart count based on items passed as a prop
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
   return (
     <div className="relative">
       <div
@@ -96,7 +97,7 @@ const Navbar = () => {
                 <AuthButtons handleNavigateToLogin={handleNavigateToLogin} />
               </div>
             )}
-            
+
             {/* Cart Icon */}
             <CartIcon cartCount={cartCount} />
           </div>

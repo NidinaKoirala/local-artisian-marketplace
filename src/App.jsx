@@ -56,7 +56,7 @@ const App = () => {
 
   return (
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-      <Navbar />
+      <Navbar cartItems={cartItems || []} />
       <main className="main-content">
         <Routes>
           {/* Redirect seller from '/' to '/seller' */}
