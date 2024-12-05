@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useState } from "react";
 
 const OrderList = ({ orders }) => {
+  const [searchQuery, setSearchQuery] = useState(""); // State for the search query
+  const [filteredOrders, setFilteredOrders] = useState(orders); // State for filtered orders
+
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    // Filter orders based on the search query
+    const filtered = orders.filter((order) =>
+      order.orderId.toString().toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredOrders(filtered);
+  };
+
   const handleExport = () => {
-    if (orders.length === 0) {
+    if (filteredOrders.length === 0) {
       alert("No orders to export.");
       return;
     }
@@ -19,7 +33,7 @@ const OrderList = ({ orders }) => {
       "Order Date"
     ];
 
-    const rows = orders.map((order) => [
+    const rows = filteredOrders.map((order) => [
       order.orderId,
       order.customerName,
       order.customerPhone || "N/A",
@@ -50,14 +64,25 @@ const OrderList = ({ orders }) => {
     <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Orders</h2>
-        <button
-          onClick={handleExport}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-500 transition-colors"
-        >
-          Export to CSV
-        </button>
+        <div className="flex items-center gap-4">
+          {/* Search Bar */}
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearch}
+            placeholder="Search by Order ID"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          {/* Export Button */}
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-500 transition-colors"
+          >
+            Export to CSV
+          </button>
+        </div>
       </div>
-      {orders.length === 0 ? (
+      {filteredOrders.length === 0 ? (
         <p className="text-gray-600">No orders available</p>
       ) : (
         <table className="w-full text-left border-collapse">
@@ -74,7 +99,7 @@ const OrderList = ({ orders }) => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr
                 key={order.orderId}
                 className="border-b hover:bg-gray-800 hover:text-white transition-colors"
