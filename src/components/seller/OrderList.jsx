@@ -7,16 +7,17 @@ const OrderList = ({ orders }) => {
       {orders.length === 0 ? (
         <p className="text-gray-600">No orders available</p>
       ) : (
-        <table className="w-full text-left">
+        <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="py-2 px-4">Order ID</th>
-              <th className="py-2 px-4">Customer</th>
-              <th className="py-2 px-4">Contact</th>
-              <th className="py-2 px-4">Item</th>
-              <th className="py-2 px-4">Amount</th>
-              <th className="py-2 px-4">Quantity</th>
-              <th className="py-2 px-4">Order Date</th>
+              <th className="py-2 px-4 border">Order ID</th>
+              <th className="py-2 px-4 border">Customer</th>
+              <th className="py-2 px-4 border">Contact</th>
+              <th className="py-2 px-4 border">Address</th>
+              <th className="py-2 px-4 border">Item</th>
+              <th className="py-2 px-4 border">Amount</th>
+              <th className="py-2 px-4 border">Quantity</th>
+              <th className="py-2 px-4 border">Order Date</th>
             </tr>
           </thead>
           <tbody>
@@ -25,6 +26,7 @@ const OrderList = ({ orders }) => {
                 <td className="py-2 px-4">{order.orderId}</td>
                 <td className="py-2 px-4">{order.customerName}</td>
                 <td className="py-2 px-4">{order.customerPhone || 'N/A'}</td>
+                <td className="py-2 px-4">{order.customerAddress}</td>
                 <td className="py-2 px-4">{order.itemName}</td>
                 <td className="py-2 px-4">${(order.itemPrice * order.quantity).toFixed(2)}</td>
                 <td className="py-2 px-4">{order.quantity}</td>

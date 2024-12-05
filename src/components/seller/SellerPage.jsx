@@ -160,7 +160,8 @@ const SellerPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {orders.map((order) => (
+                        {/* Show only the first 5 orders */}
+                        {orders.slice(0, 5).map((order) => (
                           <tr key={order.orderId} className="border-b hover:bg-gray-50">
                             <td className="py-2 px-4">{order.orderId}</td>
                             <td className="py-2 px-4">{order.customerName}</td>
