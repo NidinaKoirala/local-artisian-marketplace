@@ -194,7 +194,7 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
         className={`w-full ${isProcessing ? 'bg-gray-400' : 'bg-indigo-600'} text-white py-2 rounded-lg font-medium hover:bg-indigo-500 transition-colors`}
         disabled={isProcessing}
       >
-        {isProcessing ? 'Processing...' : 'Pay Now'}
+        {isProcessing ? 'Processing...' : 'Place Order'}
       </button>
 
       {/* Order Message */}
