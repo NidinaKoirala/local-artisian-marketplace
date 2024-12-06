@@ -11,6 +11,7 @@ const UserProfile = () => {
   const [successMessage, setSuccessMessage] = useState(''); // For success messages
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [review, setReview] = useState({ rating: 0, comment: '' });
+  const [loadingOrders, setLoadingOrders] = useState(false); // Add this state
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -42,6 +43,7 @@ const UserProfile = () => {
 
   const fetchOrderHistory = async (userId) => {
     try {
+      setLoadingOrders(true); // Start loading
       const response = await fetch(`${backendUrl}/order/history/${userId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch order history');
@@ -57,7 +59,6 @@ const UserProfile = () => {
           );
           const statusData = await statusResponse.json();
   
-          // Add color for each status
           const statusColors = {
             Received: 'bg-blue-500 text-white',
             Packed: 'bg-yellow-500 text-white',
@@ -75,10 +76,11 @@ const UserProfile = () => {
     } catch (error) {
       console.error(error);
       setMessage(error.message || 'An error occurred while fetching order history.');
+    } finally {
+      setLoadingOrders(false); // Stop loading
     }
   };
-  
-
+    
   const fetchProductDetails = async (itemId) => {
     try {
       const response = await fetch(`${backendUrl}/items/${itemId}`);
@@ -191,9 +193,11 @@ const UserProfile = () => {
 
       <h2 className="text-3xl font-semibold text-gray-800 mb-4">Your Orders</h2>
       <div className="mb-8">
-        {orderHistory.length === 0 ? (
-          <p className="text-gray-500">No orders found.</p>
-        ) : (
+        {loadingOrders ? (
+           <p className="text-center text-gray-500">Loading orders...</p>
+         ) : orderHistory.length === 0 ? (
+           <p className="text-gray-500">No orders found.</p>
+         ) : (  
           <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden shadow-sm">
             <thead>
               <tr className="bg-indigo-600 text-white">
