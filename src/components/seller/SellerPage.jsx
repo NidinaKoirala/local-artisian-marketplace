@@ -175,7 +175,6 @@ const SellerPage = () => {
                   )}
                 </div>
               </section>
-
               {/* Product Management Section */}
               <section className="mt-8">
                 <h2 className="text-2xl font-semibold mb-4">Your Products</h2>
@@ -195,7 +194,7 @@ const SellerPage = () => {
                       <p className="text-gray-500">Stock: {product.inStock}</p>
                       <p className="text-gray-500">Sold: {product.soldQuantity}</p>
                       <Link
-                        to={`/product/${product.id}/edit`}
+                        to={`/products/${product.id}/edit`}
                         className="text-indigo-600 hover:underline mt-2 inline-block"
                       >
                         Edit Product
