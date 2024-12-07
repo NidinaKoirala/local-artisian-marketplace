@@ -85,7 +85,6 @@ const TopSales = ({ addToCart }) => {
                 )}
               </p>
               <p className="text-green-600 text-xs mb-1">Sold: {product.soldQuantity || 0} items</p>
-              <p className="text-red-500 text-xs mb-1">Discount: {product.discount || 0}%</p>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
