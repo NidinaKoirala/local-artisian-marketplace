@@ -41,9 +41,7 @@ const TopSales = ({ addToCart }) => {
   };
 
   const handleProductClick = (product) => {
-    if (product.inStock > 0) {
-      navigate(`/product/${product.title.toLowerCase().replace(/\s+/g, '-')}/${product.id}`);
-    }
+    navigate(`/product/${product.title.toLowerCase().replace(/\s+/g, '-')}/${product.id}`);
   };
 
   return (
@@ -67,11 +65,7 @@ const TopSales = ({ addToCart }) => {
         {topSales.map((product) => (
           <div
             key={product.id}
-            className={`bg-white shadow-lg rounded-lg overflow-hidden ${
-              product.inStock > 0
-                ? 'cursor-pointer hover:shadow-xl transform transition-shadow duration-300 hover:scale-105'
-                : 'opacity-50 cursor-not-allowed'
-            }`}
+            className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transform transition-shadow duration-300 hover:scale-105"
             onClick={() => handleProductClick(product)}
           >
             <ProductSlider images={product.photos?.map((photo) => photo.url) || []} />

@@ -46,8 +46,8 @@ const Collection = ({ addToCart }) => {
   }, [currentPage, categoryPage]);
 
   const filteredProducts = items
-  .filter(product => selectedCategory === 'All' || product.category === selectedCategory)
-  .filter(product => product.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    .filter(product => selectedCategory === 'All' || product.category === selectedCategory)
+    .filter(product => product.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const sortedProducts = filteredProducts.sort((a, b) => {
     if (sortOrder === 'highToLow') return b.price - a.price;
@@ -154,7 +154,6 @@ const Collection = ({ addToCart }) => {
         </div>
       )}
 
-
       <div className={`w-full md:w-1/4 mb-6 md:mb-0 pr-4 hidden md:flex flex-col h-full bg-white`}>
         <h2 className="text-2xl font-semibold mb-4 text-gray-700">Categories</h2>
         <ul className="space-y-3">
@@ -195,44 +194,39 @@ const Collection = ({ addToCart }) => {
         </div>
       </div>
       <div className="w-full md:w-3/4 ml-0 md:ml-1/4">
-      <div className="flex flex-wrap items-center justify-end mb-4 gap-4">
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-600 w-full md:w-40"
-        />
-      
-        {/* Sort Dropdown */}
-        <select
-          onChange={(e) => setSortOrder(e.target.value)}
-          value={sortOrder}
-          className="p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-600 w-full md:w-auto"
-        >
-          <option value="relevant">Relevant</option>
-          <option value="highToLow">Price: High to Low</option>
-          <option value="lowToHigh">Price: Low to High</option>
-        </select>
-      </div>
+        <div className="flex flex-wrap items-center justify-end mb-4 gap-4">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-600 w-full md:w-40"
+          />
+          <select
+            onChange={(e) => setSortOrder(e.target.value)}
+            value={sortOrder}
+            className="p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-600 w-full md:w-auto"
+          >
+            <option value="relevant">Relevant</option>
+            <option value="highToLow">Price: High to Low</option>
+            <option value="lowToHigh">Price: Low to High</option>
+          </select>
+        </div>
         {loading ? (
           <div className="flex justify-center my-6">
             <p className="text-gray-600">Loading products...</p>
           </div>
-           ) : currentProducts.length === 0 ? (
-             <div className="flex justify-center my-6">
-               <p className="text-gray-600 text-lg font-semibold">No results found</p>
-             </div>
-           ) : (          
+        ) : currentProducts.length === 0 ? (
+          <div className="flex justify-center my-6">
+            <p className="text-gray-600 text-lg font-semibold">No results found</p>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {currentProducts.map((product) => (
               <div
                 key={product.id}
-                className={`bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transform transition-all duration-300 hover:scale-105 ${
-                  product.inStock === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-                onClick={() => product.inStock > 0 && handleProductClick(product)}
+                className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transform transition-all duration-300 hover:scale-105"
+                onClick={() => handleProductClick(product)}
               >
                 <img
                   src={product.photos[autoSlideIndex % product.photos.length]?.url}
@@ -255,31 +249,32 @@ const Collection = ({ addToCart }) => {
                       <span>${product.price.toFixed(2)}</span>
                     )}
                   </p>
-          
                   {product.averageRating > 0 && renderStars(product.averageRating)}
-          
                   <p
                     className={`text-sm font-semibold ${
-                      product.inStock > 5 ? "text-green-600" : product.inStock > 0 ? "text-red-600" : "text-gray-500"
+                      product.inStock > 5
+                        ? "text-green-600"
+                        : product.inStock > 0
+                        ? "text-red-600"
+                        : "text-gray-500"
                     }`}
                   >
-                    {product.inStock > 5
+                    {product.inStock === 0
+                      ? "Out of Stock"
+                      : product.inStock > 5
                       ? `In Stock: ${product.inStock}`
-                      : product.inStock > 0
-                      ? "Low Stock"
-                      : "Out of Stock"}
+                      : "Low Stock"}
                   </p>
-          
                   <button
                     onClick={(e) => handleAddToCart(product, e)}
                     className={`w-full py-2 mt-3 rounded-lg font-medium transition-colors ${
-                      product.inStock > 0
-                        ? "bg-indigo-600 text-white hover:bg-indigo-500"
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      product.inStock === 0
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-indigo-600 text-white hover:bg-indigo-500"
                     }`}
                     disabled={product.inStock === 0}
                   >
-                    {product.inStock > 0 ? "Add to Cart" : "Out of Stock"}
+                    Add to Cart
                   </button>
                 </div>
               </div>
