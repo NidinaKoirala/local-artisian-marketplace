@@ -1,6 +1,4 @@
-import React from 'react';
-
-const OrderHistoryTable = ({ orderHistory, reviews, handleProductClick, loadingOrders }) => {
+const OrderHistoryTable = ({ orderHistory, handleProductClick, loadingOrders }) => {
   if (loadingOrders) {
     return <p className="text-center text-gray-500">Loading orders...</p>;
   }
@@ -26,9 +24,7 @@ const OrderHistoryTable = ({ orderHistory, reviews, handleProductClick, loadingO
         {orderHistory.map((order) => (
           <tr
             key={order.orderId}
-            className={`hover:bg-gray-50 ${
-              reviews.some((review) => review.itemId === order.itemId) ? 'bg-green-100' : ''
-            }`}
+            className={`hover:bg-gray-50 ${order.isReviewed ? 'bg-green-100' : ''}`}
           >
             <td className="border border-gray-300 px-4 py-2">{order.orderId}</td>
             <td className="border border-gray-300 px-4 py-2">{new Date(order.orderDate).toLocaleString()}</td>
@@ -41,17 +37,28 @@ const OrderHistoryTable = ({ orderHistory, reviews, handleProductClick, loadingO
             </td>
             <td className="border border-gray-300 px-4 py-2">${order.itemPrice.toFixed(2)}</td>
             <td className="border border-gray-300 px-4 py-2">
-              <button
-                onClick={() => handleProductClick(order)}
-                className={`px-3 py-1 rounded ${
-                  order.status === 'Delivered'
-                    ? 'bg-blue-600 text-white hover:bg-blue-500'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-                disabled={order.status !== 'Delivered'}
-              >
-                Review
-              </button>
+              {order.isReviewed ? (
+                <button
+                  className="px-3 py-1 rounded bg-gray-300 text-gray-500 cursor-not-allowed"
+                  disabled
+                >
+                  Reviewed
+                </button>
+              ) : order.status === 'Delivered' ? (
+                <button
+                  onClick={() => handleProductClick(order)}
+                  className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-500"
+                >
+                  Review
+                </button>
+              ) : (
+                <button
+                  className="px-3 py-1 rounded bg-gray-300 text-gray-500 cursor-not-allowed"
+                  disabled
+                >
+                 Reiview
+                </button>
+              )}
             </td>
           </tr>
         ))}
