@@ -229,8 +229,10 @@ const Collection = ({ addToCart }) => {
             {currentProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transform transition-all duration-300 hover:scale-105"
-                onClick={() => handleProductClick(product)}
+                className={`bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transform transition-all duration-300 hover:scale-105 ${
+                  product.inStock === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                onClick={() => product.inStock > 0 && handleProductClick(product)}
               >
                 <img
                   src={product.photos[autoSlideIndex % product.photos.length]?.url}
@@ -253,22 +255,31 @@ const Collection = ({ addToCart }) => {
                       <span>${product.price.toFixed(2)}</span>
                     )}
                   </p>
-
+          
                   {product.averageRating > 0 && renderStars(product.averageRating)}
-
+          
                   <p
                     className={`text-sm font-semibold ${
-                      product.inStock > 5 ? "text-green-600" : "text-red-600"
+                      product.inStock > 5 ? "text-green-600" : product.inStock > 0 ? "text-red-600" : "text-gray-500"
                     }`}
                   >
-                    {product.inStock > 5 ? `In Stock: ${product.inStock}` : "Low Stock"}
+                    {product.inStock > 5
+                      ? `In Stock: ${product.inStock}`
+                      : product.inStock > 0
+                      ? "Low Stock"
+                      : "Out of Stock"}
                   </p>
-
+          
                   <button
                     onClick={(e) => handleAddToCart(product, e)}
-                    className="w-full py-2 mt-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-500 transition-colors"
+                    className={`w-full py-2 mt-3 rounded-lg font-medium transition-colors ${
+                      product.inStock > 0
+                        ? "bg-indigo-600 text-white hover:bg-indigo-500"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                    disabled={product.inStock === 0}
                   >
-                    Add to Cart
+                    {product.inStock > 0 ? "Add to Cart" : "Out of Stock"}
                   </button>
                 </div>
               </div>

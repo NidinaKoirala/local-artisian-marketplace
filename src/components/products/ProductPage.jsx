@@ -154,20 +154,52 @@ const ProductPage = ({ addToCart, isLoggedIn, cartItems, setCartItems }) => {
 
         {/* Stock Information */}
         <p className={`text-sm font-semibold ${product.inStock > 5 ? 'text-green-600' : 'text-red-600'}`}>
-          {product.inStock > 5 ? `In Stock: ${product.inStock}` : 'Low Stock'}
+          {product.inStock > 5 ? `In Stock: ${product.inStock}` : product.inStock > 0 ? 'Low Stock' : 'Out of Stock'}
         </p>
 
         {/* Quantity Selector */}
         <div className="flex items-center mt-4 space-x-4">
-          <button onClick={() => handleQuantityChange(-1)} className="px-4 py-2 bg-gray-200 rounded">-</button>
+          <button
+            onClick={() => handleQuantityChange(-1)}
+            className="px-4 py-2 bg-gray-200 rounded"
+            disabled={product.inStock === 0}
+          >
+            -
+          </button>
           <span>{quantity}</span>
-          <button onClick={() => handleQuantityChange(1)} className="px-4 py-2 bg-gray-200 rounded">+</button>
+          <button
+            onClick={() => handleQuantityChange(1)}
+            className="px-4 py-2 bg-gray-200 rounded"
+            disabled={product.inStock === 0}
+          >
+            +
+          </button>
         </div>
 
         {/* Actions */}
         <div className="flex space-x-4 mt-4">
-          <button onClick={handleAddToCart} className="bg-blue-500 text-white px-4 py-2 rounded">Add to Cart</button>
-          <button onClick={handleBuyNow} className="bg-green-500 text-white px-4 py-2 rounded">Buy Now</button>
+          <button
+            onClick={handleAddToCart}
+            className={`px-4 py-2 rounded ${
+              product.inStock > 0
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            disabled={product.inStock === 0}
+          >
+            {product.inStock > 0 ? 'Add to Cart' : 'Out of Stock'}
+          </button>
+          <button
+            onClick={handleBuyNow}
+            className={`px-4 py-2 rounded ${
+              product.inStock > 0
+                ? 'bg-green-500 text-white hover:bg-green-600'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            disabled={product.inStock === 0}
+          >
+            {product.inStock > 0 ? 'Buy Now' : 'Out of Stock'}
+          </button>
         </div>
 
         {/* Description */}

@@ -41,7 +41,9 @@ const TopSales = ({ addToCart }) => {
   };
 
   const handleProductClick = (product) => {
-    navigate(`/product/${product.title.toLowerCase().replace(/\s+/g, '-')}/${product.id}`);
+    if (product.inStock > 0) {
+      navigate(`/product/${product.title.toLowerCase().replace(/\s+/g, '-')}/${product.id}`);
+    }
   };
 
   return (
@@ -65,7 +67,11 @@ const TopSales = ({ addToCart }) => {
         {topSales.map((product) => (
           <div
             key={product.id}
-            className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+            className={`bg-white shadow-lg rounded-lg overflow-hidden ${
+              product.inStock > 0
+                ? 'cursor-pointer hover:shadow-xl transform transition-shadow duration-300 hover:scale-105'
+                : 'opacity-50 cursor-not-allowed'
+            }`}
             onClick={() => handleProductClick(product)}
           >
             <ProductSlider images={product.photos?.map((photo) => photo.url) || []} />
@@ -91,9 +97,14 @@ const TopSales = ({ addToCart }) => {
                   e.stopPropagation();
                   addToCart(product);
                 }}
-                className="mt-2 w-full bg-indigo-600 text-white py-1 rounded-lg font-medium hover:bg-indigo-500 transition-colors"
+                className={`mt-2 w-full py-1 rounded-lg font-medium transition-colors ${
+                  product.inStock > 0
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-500'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                disabled={product.inStock === 0}
               >
-                Add to Cart
+                {product.inStock > 0 ? 'Add to Cart' : 'Out of Stock'}
               </button>
             </div>
           </div>

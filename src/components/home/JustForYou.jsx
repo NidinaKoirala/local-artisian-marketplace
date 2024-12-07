@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import ProductSlider from '../products/ProductSlider';
 
 const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, renderStars }) => {
-  const latestItems = items.slice(0, 9);
+  // Filter out products that are out of stock
+  const availableItems = items.filter((product) => product.inStock > 0);
+
+  // Select the latest 9 available items
+  const latestItems = availableItems.slice(0, 9);
 
   return (
     <div className="bg-gray-50 px-6 md:px-12 py-10 rounded-lg shadow-md"> {/* Subtle white background for the whole component */}
@@ -21,7 +25,7 @@ const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, 
                 className="bg-white p-4 rounded-xl shadow-md border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 transform hover:scale-105"
                 onClick={() => handleProductClick(product)}
               >
-                <ProductSlider images={product.photos.map(photo => photo.url)} />
+                <ProductSlider images={product.photos.map((photo) => photo.url)} />
                 <div className="p-4">
                   <h3 className="font-semibold text-lg text-gray-800 mb-1">{product.title}</h3>
                   <p className="text-gray-600 text-sm mb-3">{product.description}</p>
@@ -57,7 +61,7 @@ const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, 
               </div>
             ))}
           </div>
-          {items.length > 9 && (
+          {availableItems.length > 9 && (
             <div className="flex justify-center mt-8">
               <Link
                 to="/collection"
