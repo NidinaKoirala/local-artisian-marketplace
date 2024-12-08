@@ -9,12 +9,12 @@ const ShopByCategory = ({ loading = false, categories = [], items = [], handleCa
 
       {loading ? (
         <div className="flex items-center justify-center h-40">
-          <span className="text-lg font-medium text-gray-500">Loading categories...</span>
+          <div className="w-10 h-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
           {categories.slice(0, 6).map((category) => {
-            const latestProduct = items.find(item => item.category === category);
+            const latestProduct = items.find((item) => item.category === category);
             return (
               <div
                 key={category}
