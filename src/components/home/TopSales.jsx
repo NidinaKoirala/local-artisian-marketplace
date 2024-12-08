@@ -6,6 +6,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 
 const TopSales = ({ addToCart }) => {
   const [topSales, setTopSales] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(86400); // 24 hours in seconds
   const navigate = useNavigate();
 
@@ -20,6 +21,8 @@ const TopSales = ({ addToCart }) => {
         setTopSales(sortedItems.slice(0, 5)); // Only get the top 5 items
       } catch (error) {
         console.error('Error fetching top sales:', error);
+      } finally {
+        setLoading(false); // Set loading to false once fetching is complete
       }
     };
 
@@ -60,49 +63,58 @@ const TopSales = ({ addToCart }) => {
           </Link>
         </div>
       </div>
-      <p className="text-lg text-red-600 mb-4">Get discount up to 80%</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {topSales.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transform transition-shadow duration-300 hover:scale-105"
-            onClick={() => handleProductClick(product)}
-          >
-            <ProductSlider images={product.photos?.map((photo) => photo.url) || []} />
-            <div className="p-3">
-              <h3 className="font-bold text-md mb-1">{product.title}</h3>
-              <p className="text-gray-800 font-semibold mb-1">
-                Price:{' '}
-                {product.discount > 0 ? (
-                  <>
-                    <span className="line-through text-gray-500">${product.price.toFixed(2)}</span>{' '}
-                    <span className="text-red-500">
-                      ${(product.price - (product.price * product.discount) / 100).toFixed(2)}
-                    </span>
-                  </>
-                ) : (
-                  <span>${product.price.toFixed(2)}</span>
-                )}
-              </p>
-              <p className="text-green-600 text-xs mb-1">Sold: {product.soldQuantity || 0} items</p>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addToCart(product);
-                }}
-                className={`mt-2 w-full py-1 rounded-lg font-medium transition-colors ${
-                  product.inStock > 0
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-500'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-                disabled={product.inStock === 0}
+
+      {loading ? (
+        <div className="flex items-center justify-center h-40">
+          <div className="w-10 h-10 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          <p className="text-lg text-red-600 mb-4">Get discount up to 80%</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {topSales.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transform transition-shadow duration-300 hover:scale-105"
+                onClick={() => handleProductClick(product)}
               >
-                {product.inStock > 0 ? 'Add to Cart' : 'Out of Stock'}
-              </button>
-            </div>
+                <ProductSlider images={product.photos?.map((photo) => photo.url) || []} />
+                <div className="p-3">
+                  <h3 className="font-bold text-md mb-1">{product.title}</h3>
+                  <p className="text-gray-800 font-semibold mb-1">
+                    Price:{' '}
+                    {product.discount > 0 ? (
+                      <>
+                        <span className="line-through text-gray-500">${product.price.toFixed(2)}</span>{' '}
+                        <span className="text-red-500">
+                          ${(product.price - (product.price * product.discount) / 100).toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <span>${product.price.toFixed(2)}</span>
+                    )}
+                  </p>
+                  <p className="text-green-600 text-xs mb-1">Sold: {product.soldQuantity || 0} items</p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
+                    className={`mt-2 w-full py-1 rounded-lg font-medium transition-colors ${
+                      product.inStock > 0
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-500'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                    disabled={product.inStock === 0}
+                  >
+                    {product.inStock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 };

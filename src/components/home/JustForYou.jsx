@@ -14,7 +14,7 @@ const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, 
       <h2 className="text-4xl font-bold mb-6 text-left text-gray-800">Just for You</h2>
       {loading ? (
         <div className="flex justify-center my-6">
-          <p className="text-gray-600 text-lg">Loading products...</p>
+          <p className="text-gray-600 text-lg">Loading products For You...</p>
         </div>
       ) : (
         <>
