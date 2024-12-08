@@ -1,9 +1,14 @@
-import React from 'react';
-import { assets } from '../../assets/assets';
-import { FaInstagram, FaFacebook, FaTwitter } from 'react-icons/fa';
+import React from "react";
+import { Link } from "react-router-dom";
+import { assets } from "../../assets/assets";
+import { FaInstagram, FaFacebook, FaTwitter } from "react-icons/fa";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <footer className="bg-gray-50 text-gray-700 py-12 px-5 text-center sm:text-left border-t border-gray-200 shadow-sm">
@@ -17,14 +22,46 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* Company Links */}
+        {/* Navigation Items */}
         <div>
           <h4 className="text-gray-800 font-semibold mb-3">COMPANY</h4>
           <ul className="space-y-2 text-gray-600 text-sm">
-            <li><a href="/" className="hover:text-gray-800 transition-colors">Home</a></li>
-            <li><a href="/about" className="hover:text-gray-800 transition-colors">About Us</a></li>
-            <li><a href="/collection" className="hover:text-gray-800 transition-colors">Collection</a></li>
-            <li><a href="/privacy" className="hover:text-gray-800 transition-colors">Privacy Policy</a></li>
+            <li>
+              <Link
+                to="/"
+                onClick={scrollToTop}
+                className="hover:text-gray-800 transition-colors"
+              >
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/collection"
+                onClick={scrollToTop}
+                className="hover:text-gray-800 transition-colors"
+              >
+                Collection
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/about"
+                onClick={scrollToTop}
+                className="hover:text-gray-800 transition-colors"
+              >
+                About Us
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/contact"
+                onClick={scrollToTop}
+                className="hover:text-gray-800 transition-colors"
+              >
+                Contact
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -33,18 +70,46 @@ const Footer = () => {
           <h4 className="text-gray-800 font-semibold mb-3">GET IN TOUCH</h4>
           <ul className="space-y-2 text-gray-600 text-sm">
             <li>98000000000</li>
-            <li><a href="mailto:hastakala@gmail.com" className="hover:text-gray-800 transition-colors">hastakala@gmail.com</a></li>
+            <li>
+              <a
+                href="mailto:hastakala@gmail.com"
+                className="hover:text-gray-800 transition-colors"
+              >
+                hastakala@gmail.com
+              </a>
+            </li>
             <li className="flex items-center space-x-3">
               <FaFacebook className="text-gray-600 hover:text-gray-800 transition-colors" />
-              <a href="https://facebook.com" className="hover:text-gray-800 transition-colors">Facebook</a>
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-800 transition-colors"
+              >
+                Facebook
+              </a>
             </li>
             <li className="flex items-center space-x-3">
               <FaInstagram className="text-gray-600 hover:text-gray-800 transition-colors" />
-              <a href="https://instagram.com" className="hover:text-gray-800 transition-colors">Instagram</a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-800 transition-colors"
+              >
+                Instagram
+              </a>
             </li>
             <li className="flex items-center space-x-3">
               <FaTwitter className="text-gray-600 hover:text-gray-800 transition-colors" />
-              <a href="https://twitter.com" className="hover:text-gray-800 transition-colors">Twitter</a>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-800 transition-colors"
+              >
+                Twitter
+              </a>
             </li>
           </ul>
         </div>

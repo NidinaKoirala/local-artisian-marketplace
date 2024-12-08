@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { assets } from "../../assets/assets";
-import { Link, useNavigate } from "react-router-dom";
-import NavItems from "./NavItems";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import CartIcon from "./CartIcon";
 import AuthButtons from "./AuthButtons";
 import UserMenu from "./UserMenu";
@@ -10,16 +9,11 @@ const Navbar = ({ cartItems }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSeller, setIsSeller] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchHistory, setSearchHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
   const navigate = useNavigate();
-
-  const navbarBackgroundColor = "bg-[#d2cff9]";
-
-  const navItems = [
-    { to: "/", label: "HOME" },
-    { to: "/collection", label: "COLLECTION" },
-    { to: "/about", label: "ABOUT" },
-    { to: "/contact", label: "CONTACT" },
-  ];
+  const location = useLocation();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -34,10 +28,20 @@ const Navbar = ({ cartItems }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavigateToLogin = (redirectTo) => {
-    navigate("/login", { state: { redirectTo } });
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/collection?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchHistory((prev) => {
+        const updatedHistory = [
+          searchQuery.trim(),
+          ...prev.filter((q) => q !== searchQuery.trim()),
+        ];
+        return updatedHistory.slice(0, 5);
+      });
+      setSearchQuery("");
+    }
   };
-
   const handleLogout = async () => {
     try {
       const response = await fetch(
@@ -62,58 +66,107 @@ const Navbar = ({ cartItems }) => {
       console.error("An error occurred during logout:", error);
     }
   };
+  const handleHistoryClick = (query) => {
+    navigate(`/collection?search=${encodeURIComponent(query)}`);
+    setSearchQuery("");
+    setShowHistory(false);
+  };
 
-  // Dynamically calculate cart count based on items passed as a prop
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <div className="relative">
       <div
-        className={`navbar fixed top-0 left-0 right-0 z-50 ${navbarBackgroundColor} transition-all duration-300 shadow-md ${
-          isScrolled ? "h-16 py-0" : "h-20 py-3"
+        className={`navbar fixed top-0 left-0 right-0 z-50 bg-white shadow-lg transition-all duration-300 ${
+          isScrolled ? "py-2" : "py-4"
         }`}
       >
-        <div className="container mx-auto flex items-center justify-between px-4 md:px-6 lg:px-8">
-          {/* Left Section - Logo, always on the left */}
-          <Link to={isSeller ? "/seller" : "/"} className="flex-shrink-0">
+        <div className="container mx-auto flex items-center justify-between px-6">
+          {/* Logo Section */}
+          <Link to={isSeller ? "/seller" : "/"} className="flex items-center">
             <img
               src={assets.logo}
-              className={`w-12 h-auto md:w-16 ${isScrolled ? "hidden md:block" : ""}`}
               alt="Logo"
+              className={`w-12 h-12 transition-transform duration-300 ${
+                isScrolled ? "scale-90" : ""
+              }`}
             />
+            <span className="ml-2 text-lg font-bold text-gray-800 hidden sm:block">
+              Nepali
+              Hastakala
+            </span>
           </Link>
 
-          {/* Centered Navigation Items - Hidden on smaller screens */}
-          <div className="hidden md:flex flex-grow justify-center">
-            <NavItems navItems={navItems} isSeller={isSeller} />
-          </div>
+          {/* Search Bar Section (visible only on homepage) */}
+          {location.pathname === "/" && (
+            <div className="relative flex-grow mx-6">
+              <form onSubmit={handleSearch}>
+                <input
+                  type="text"
+                  placeholder="Search for products, categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowHistory(true)}
+                  className="w-full py-2 px-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+              </form>
+              {showHistory && searchHistory.length > 0 && (
+                <div
+                  className="absolute mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg"
+                  onMouseLeave={() => setShowHistory(false)}
+                >
+                  <p className="px-3 py-2 text-xs font-semibold text-gray-500 border-b">
+                    Search History
+                  </p>
+                  {searchHistory.map((query, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleHistoryClick(query)}
+                      className="block w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                    >
+                      {query}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Right Section - AuthButtons/UserMenu and CartIcon */}
-          <div className="flex items-center gap-0 md:gap-4">
+          {/* Navigation and Actions Section */}
+          <div className="flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-4">
+              <Link
+                to="/"
+                className="text-gray-700 font-medium hover:text-indigo-600 transition-colors"
+              >
+                Home
+              </Link>
+              {!isSeller && (
+                <Link
+                  to="/collection"
+                  className="text-gray-700 font-medium hover:text-indigo-600 transition-colors"
+                >
+                  Shop
+                </Link>
+              )}
+              <Link
+                to="/contact"
+                className="text-gray-700 font-medium hover:text-indigo-600 transition-colors"
+              >
+                Contact
+              </Link>
+            </nav>
+
+            {/* User Actions */}
             {isLoggedIn ? (
               <UserMenu isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
             ) : (
-              <div className="hidden md:flex space-x-2">
-                <AuthButtons handleNavigateToLogin={handleNavigateToLogin} />
-              </div>
+            <AuthButtons handleNavigateToLogin={() => navigate("/login")} />
             )}
 
             {/* Cart Icon */}
-            <CartIcon cartCount={cartCount} />
+            {!isSeller && <CartIcon cartCount={cartCount} />}
           </div>
-        </div>
-
-        {/* Auth and Navigation Items for smaller screens */}
-        <div
-          className={`md:hidden flex flex-col items-center ${
-            isScrolled ? "-mt-1 space-y-4" : "-mt-8 space-y-3"
-          }`}
-        >
-          {/* Conditionally render AuthButtons based on scroll */}
-          {!isScrolled && !isLoggedIn && (
-            <AuthButtons handleNavigateToLogin={handleNavigateToLogin} />
-          )}
-          <NavItems navItems={navItems} isSeller={isSeller} />
         </div>
       </div>
     </div>
