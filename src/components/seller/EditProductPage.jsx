@@ -19,7 +19,12 @@ const EditProductPage = () => {
           throw new Error('Failed to fetch product details');
         }
         const data = await response.json();
-        setProduct(data);
+
+        // Ensure product and imageUrls are properly set
+        setProduct({
+          ...data,
+          imageUrls: data.photos ? data.photos.map((photo) => photo.url) : [''], // Extract photo URLs
+        });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -33,6 +38,29 @@ const EditProductPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
+  };
+
+  const handleImageUrlChange = (index, value) => {
+    setProduct((prevProduct) => {
+      const updatedImageUrls = [...prevProduct.imageUrls];
+      updatedImageUrls[index] = value;
+      return { ...prevProduct, imageUrls: updatedImageUrls };
+    });
+  };
+
+  const handleAddImageUrl = () => {
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      imageUrls: [...prevProduct.imageUrls, ''],
+    }));
+  };
+
+  const handleRemoveImageUrl = (index) => {
+    setProduct((prevProduct) => {
+      const updatedImageUrls = [...prevProduct.imageUrls];
+      updatedImageUrls.splice(index, 1);
+      return { ...prevProduct, imageUrls: updatedImageUrls };
+    });
   };
 
   const handleSave = async () => {
@@ -125,14 +153,31 @@ const EditProductPage = () => {
           ></textarea>
         </div>
         <div>
-          <label className="block text-gray-700">Image URL</label>
-          <input
-            type="text"
-            name="imageUrl"
-            value={product.imageUrl || ''}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
+          <label className="block text-gray-700">Image URLs</label>
+          {product.imageUrls.map((url, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-2"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveImageUrl(index)}
+                className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={handleAddImageUrl}
+            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Add Another URL
+          </button>
         </div>
         <div className="flex justify-end">
           <button
