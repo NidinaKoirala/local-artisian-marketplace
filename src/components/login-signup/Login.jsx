@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 
-const Login = ({ setIsLoggedIn }) => {
+const Login = ({ setIsLoggedIn, setRole }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,60 +20,47 @@ const Login = ({ setIsLoggedIn }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-  
-      // Check for valid JSON response
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Unexpected response from server');
-      }
-  
-      // Check for successful response
+
       if (!response.ok) {
         throw new Error('Login failed. Please check your credentials.');
       }
-  
+
       const data = await response.json();
-      const { user } = data;
-       // Construct fullName from firstName, middleName, and lastName
-       const fullName = [
-         user.firstName,
-         user.middleName || '', // Handle middleName being optional
-         user.lastName,
-       ]
-         .filter(Boolean) // Remove any empty strings
-         .join(' '); // Join non-empty parts with a space
-      // Save user details and role in localStorage
+      const { user, token } = data;
+
+      if (!token) {
+        throw new Error('No token received. Authentication failed.');
+      }
+      // Save token and user details to localStorage
+      localStorage.setItem('token', token);
       localStorage.setItem(
         'user',
         JSON.stringify({
           id: user.id,
-          fullName: fullName || user.username, // Fallback to username if no names are provided
+          fullName: `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`.trim(),
           email: user.email,
-          role: user.role, // Save the role ('user' or 'seller')
+          role: user.role,
         })
       );
-  
+
       setIsLoggedIn(true);
-  
+      setRole(user.role);
+
       // Redirect based on role
-      if (user.role === 'seller') {
-        localStorage.setItem('isSeller', 'true'); // Mark as seller
-        navigate('/'); // Redirect to seller dashboard
-        window.location.reload(); // Refresh the page to apply changes
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (user.role === 'seller') {
+        navigate('/seller');
       } else {
-        localStorage.removeItem('isSeller'); // Ensure non-sellers don't have seller flag
         const redirectTo = location.state?.redirectTo || '/';
-        navigate(redirectTo); // Redirect buyers to intended page or home
-        window.location.reload();
-        window.scrollTo(0, 0); // Scroll to top of the page        
+        navigate(redirectTo);
       }
-  
-      window.scrollTo(0, 0); // Scroll to top of the page
+
+      window.scrollTo(0, 0);
     } catch (err) {
       setError(err.message);
     }
   };
-  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">

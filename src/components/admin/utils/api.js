@@ -3,11 +3,20 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 /**
  * Fetch data from the backend
  * @param {string} endpoint - The API endpoint
+ * @param {Object} options - Additional fetch options
  * @returns {Promise<any>} - The response data
  */
-export const fetchData = async (endpoint) => {
+export const fetchData = async (endpoint, options = {}) => {
   try {
-    const response = await fetch(`${backendUrl}${endpoint}`);
+    const token = localStorage.getItem('token'); // Fetch token from localStorage
+    const response = await fetch(`${backendUrl}${endpoint}`, {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        ...options.headers,
+      },
+      ...options,
+    });
+
     if (!response.ok) {
       throw new Error(`Error fetching data from ${endpoint}: ${response.statusText}`);
     }
@@ -27,11 +36,16 @@ export const fetchData = async (endpoint) => {
  */
 export const sendData = async (endpoint, data, method = 'POST') => {
   try {
+    const token = localStorage.getItem('token'); // Fetch token from localStorage
     const response = await fetch(`${backendUrl}${endpoint}`, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
       body: JSON.stringify(data),
     });
+
     if (!response.ok) {
       throw new Error(`Error ${method} data to ${endpoint}: ${response.statusText}`);
     }
@@ -49,7 +63,14 @@ export const sendData = async (endpoint, data, method = 'POST') => {
  */
 export const deleteData = async (endpoint) => {
   try {
-    const response = await fetch(`${backendUrl}${endpoint}`, { method: 'DELETE' });
+    const token = localStorage.getItem('token'); // Fetch token from localStorage
+    const response = await fetch(`${backendUrl}${endpoint}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+    });
+
     if (!response.ok) {
       throw new Error(`Error deleting data from ${endpoint}: ${response.statusText}`);
     }

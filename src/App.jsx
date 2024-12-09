@@ -27,20 +27,24 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import ManageUsers from "./components/admin/ManageUsers";
 import ManageProducts from "./components/admin/ManageProducts";
 import ManageSellers from "./components/admin/ManageSellers";
-import AccessDenied from "./AccessDenied"; // Import AccessDenied
-import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute
+import AccessDenied from "./AccessDenied";
+import PrivateRoute from "./PrivateRoute";
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [products, setProducts] = useState([]);
   const [role, setRole] = useState(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    setIsLoggedIn(!!storedUser);
-    if (storedUser?.role) {
+    const token = localStorage.getItem("token");
+
+    if (storedUser && token) {
+      setIsLoggedIn(true);
       setRole(storedUser.role);
+    } else {
+      setIsLoggedIn(false);
+      setRole(null);
     }
   }, []);
 
@@ -132,7 +136,7 @@ const App = () => {
           />
           <Route path="/products/:id/edit" element={<EditProductPage />} />
 
-          {/* Admin Routes (Protected by PrivateRoute) */}
+          {/* Admin Routes */}
           <Route
             path="/admin/dashboard"
             element={
@@ -166,10 +170,10 @@ const App = () => {
             }
           />
 
-          {/* Access Denied Route */}
+          {/* Access Denied */}
           <Route path="/access-denied" element={<AccessDenied />} />
 
-          {/* Fallback Route */}
+          {/* Fallback */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

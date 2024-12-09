@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
 import StatsCard from './StatsCard';
@@ -14,13 +15,26 @@ const AdminDashboard = () => {
     deliverers: 0,
   });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const token = localStorage.getItem('token');
+
+    console.log("Stored User:", storedUser); // Debug log for stored user
+    console.log("Token:", token); // Debug log for token
+
+    if (!storedUser || storedUser.role !== 'admin' || !token) {
+      console.warn('Access Denied: Not an Admin or Missing Token');
+      navigate('/access-denied');
+      return;
+    }
+
     const fetchDashboardStats = async () => {
       try {
         setLoading(true);
 
-        // Fetch users and categorize roles
+        // Fetch stats from APIs
         const users = await fetchData('/admin/users');
         const sellersData = await fetchData('/admin/sellers');
         const productsData = await fetchData('/admin/products');
@@ -43,11 +57,12 @@ const AdminDashboard = () => {
       } catch (error) {
         console.error('Failed to load dashboard stats:', error);
         setLoading(false);
+        navigate('/access-denied'); // Navigate to access denied on failure
       }
     };
 
     fetchDashboardStats();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="flex">
@@ -74,7 +89,9 @@ const AdminDashboard = () => {
                 <div className="p-4 bg-gray-50 rounded shadow">
                   <h3 className="text-lg font-semibold text-gray-700">Sellers Overview</h3>
                   <p className="text-gray-600">Total Sellers: {stats.sellers}</p>
-                  <p className="text-gray-600">Products Per Seller: {(stats.products / stats.sellers).toFixed(1)}</p>
+                  <p className="text-gray-600">
+                    Products Per Seller: {(stats.products / stats.sellers || 0).toFixed(1)}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50 rounded shadow">
                   <h3 className="text-lg font-semibold text-gray-700">Products Overview</h3>
