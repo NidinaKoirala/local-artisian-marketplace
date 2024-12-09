@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AddProductPage = () => {
@@ -6,11 +6,29 @@ const AddProductPage = () => {
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [categories, setCategories] = useState([]);
   const [stock, setStock] = useState('');
   const [imageUrls, setImageUrls] = useState(['']); // State as an array for multiple URLs
   const [error, setError] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false); // For success modal
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch available categories from the backend
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'}/categories`);
+        if (!response.ok) throw new Error('Failed to fetch categories');
+        const data = await response.json();
+        setCategories(data);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setCategories([]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
@@ -23,11 +41,13 @@ const AddProductPage = () => {
       return;
     }
 
+    const finalCategory = category === 'add-new' ? newCategory : category;
+
     const newProduct = {
       title,
       price,
       description,
-      category,
+      category: finalCategory,
       stock,
       imageUrls: imageUrls.filter((url) => url.trim() !== ''), // Remove empty strings
       sellerId,
@@ -108,13 +128,29 @@ const AddProductPage = () => {
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">Category</label>
-            <input
-              type="text"
+            <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
-              required
-            />
+            >
+              <option value="">Select a category</option>
+              {categories.map((cat, index) => (
+                <option key={index} value={cat}>
+                  {cat}
+                </option>
+              ))}
+              <option value="add-new">Add New Category</option>
+            </select>
+            {category === 'add-new' && (
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                className="w-full mt-2 px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
+                placeholder="Enter new category"
+                required
+              />
+            )}
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">Stock</label>
