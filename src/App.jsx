@@ -27,12 +27,14 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import ManageUsers from "./components/admin/ManageUsers";
 import ManageProducts from "./components/admin/ManageProducts";
 import ManageSellers from "./components/admin/ManageSellers";
+import AccessDenied from "./AccessDenied"; // Import AccessDenied
+import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [products, setProducts] = useState([]); // To store added products
-  const [role, setRole] = useState(null); // Role of the logged-in user
+  const [products, setProducts] = useState([]);
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -56,7 +58,6 @@ const App = () => {
     });
   };
 
-  // Define handleAddProduct to add new products
   const handleAddProduct = (newProduct) => {
     setProducts((prevProducts) => [...prevProducts, newProduct]);
   };
@@ -66,7 +67,6 @@ const App = () => {
       <Navbar cartItems={cartItems || []} />
       <main className="main-content">
         <Routes>
-          {/* Redirect based on role */}
           <Route
             path="/"
             element={
@@ -132,11 +132,42 @@ const App = () => {
           />
           <Route path="/products/:id/edit" element={<EditProductPage />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<ManageUsers />} />
-          <Route path="/admin/products" element={<ManageProducts />} />
-          <Route path="/admin/sellers" element={<ManageSellers />} />
+          {/* Admin Routes (Protected by PrivateRoute) */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <PrivateRoute allowedRoles={["admin"]} userRole={role}>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <PrivateRoute allowedRoles={["admin"]} userRole={role}>
+                <ManageUsers />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <PrivateRoute allowedRoles={["admin"]} userRole={role}>
+                <ManageProducts />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/sellers"
+            element={
+              <PrivateRoute allowedRoles={["admin"]} userRole={role}>
+                <ManageSellers />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Access Denied Route */}
+          <Route path="/access-denied" element={<AccessDenied />} />
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFoundPage />} />
