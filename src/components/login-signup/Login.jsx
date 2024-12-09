@@ -45,15 +45,17 @@ const Login = ({ setIsLoggedIn, setRole }) => {
 
       setIsLoggedIn(true);
       setRole(user.role);
-
       // Redirect based on role
       if (user.role === 'admin') {
-        navigate('/admin/dashboard');
+        navigate('/');
+        window.location.reload(); // Refresh the page to apply changes
       } else if (user.role === 'seller') {
-        navigate('/seller');
+        navigate('/');
+        window.location.reload(); // Refresh the page to apply changes
       } else {
         const redirectTo = location.state?.redirectTo || '/';
         navigate(redirectTo);
+        window.location.reload(); // Refresh the page to apply changes
       }
 
       window.scrollTo(0, 0);
