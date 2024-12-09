@@ -9,7 +9,7 @@ import App from './App.jsx'; // Main App component
 // Render the App component inside the #root div
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter basename="/Local-artisian-market-place">
+    <BrowserRouter basename="/local-artisian-marketplace">
       <App />
     </BrowserRouter>
   </StrictMode>
