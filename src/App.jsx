@@ -34,6 +34,7 @@ const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -46,6 +47,7 @@ const App = () => {
       setIsLoggedIn(false);
       setRole(null);
     }
+    setIsLoading(false);
   }, []);
 
   const addToCart = (product) => {
@@ -63,14 +65,19 @@ const App = () => {
   };
 
   const handleAddProduct = (newProduct) => {
-    setProducts((prevProducts) => [...prevProducts, newProduct]);
+    // Placeholder function for adding a product
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <Navbar cartItems={cartItems || []} />
       <main className="main-content">
         <Routes>
+          {/* Home */}
           <Route
             path="/"
             element={
@@ -83,6 +90,8 @@ const App = () => {
               )
             }
           />
+
+          {/* Public Routes */}
           <Route
             path="/cart"
             element={
@@ -111,6 +120,8 @@ const App = () => {
           />
           <Route path="/signup/user" element={<BuyerSignup />} />
           <Route path="/signup/seller" element={<SellerSignup />} />
+
+          {/* Protected Routes */}
           <Route
             path="/place-order"
             element={
