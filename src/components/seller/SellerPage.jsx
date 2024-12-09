@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MdClose } from 'react-icons/md';
+import { MdClose, MdDelete } from 'react-icons/md';
+import ReactModal from 'react-modal';
 
 const SellerPage = () => {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]); // For latest 5 orders
   const [loading, setLoading] = useState(true);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [deleteStatus, setDeleteStatus] = useState(''); // Added useState for deleteStatus
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,6 +80,37 @@ const SellerPage = () => {
     navigate('/'); // Redirect to homepage
   };
 
+  const handleOpenDeleteModal = (productId) => {
+    setSelectedProductId(productId);
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setSelectedProductId(null);
+    setShowDeleteModal(false);
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!selectedProductId) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'}/products/delete/${selectedProductId}`,
+        { method: 'DELETE' }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
+
+      setProducts(products.filter((product) => product.id !== selectedProductId));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    } finally {
+      handleCloseDeleteModal();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {showLoginPrompt ? (
@@ -142,39 +177,6 @@ const SellerPage = () => {
                   + Add New Product
                 </button>
               </div>
-              {/* Latest Orders */}
-              <section className="mt-8">
-                <h2 className="text-2xl font-semibold mb-4">Latest Orders</h2>
-                <div className="bg-white shadow-md rounded-lg p-6">
-                  {orders.length === 0 ? (
-                    <p className="text-gray-600">No orders available</p>
-                  ) : (
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="bg-gray-100">
-                          <th className="py-2 px-4">Order ID</th>
-                          <th className="py-2 px-4">Customer</th>
-                          <th className="py-2 px-4">Item</th>
-                          <th className="py-2 px-4">Total Price</th>
-                          <th className="py-2 px-4">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {/* Show only the first 5 orders */}
-                        {orders.slice(0, 5).map((order) => (
-                          <tr key={order.orderId} className="border-b hover:bg-gray-50">
-                            <td className="py-2 px-4">{order.orderId}</td>
-                            <td className="py-2 px-4">{order.customerName}</td>
-                            <td className="py-2 px-4">{order.itemName}</td>
-                            <td className="py-2 px-4">${order.totalPrice.toFixed(2)}</td>
-                            <td className="py-2 px-4">{new Date(order.orderDate).toLocaleDateString()}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </section>
               {/* Product Management Section */}
               <section className="mt-8">
                 <h2 className="text-2xl font-semibold mb-4">Your Products</h2>
@@ -182,7 +184,7 @@ const SellerPage = () => {
                   {products.map((product) => (
                     <div
                       key={product.id}
-                      className="bg-white shadow-lg rounded-lg overflow-hidden p-4"
+                      className="bg-white shadow-lg rounded-lg overflow-hidden p-4 relative"
                     >
                       <img
                         src={product.imageUrl}
@@ -193,12 +195,20 @@ const SellerPage = () => {
                       <p className="text-gray-600">Price: ${product.price}</p>
                       <p className="text-gray-500">Stock: {product.inStock}</p>
                       <p className="text-gray-500">Sold: {product.soldQuantity}</p>
-                      <Link
-                        to={`/products/${product.id}/edit`}
-                        className="text-indigo-600 hover:underline mt-2 inline-block"
-                      >
-                        Edit Product
-                      </Link>
+                      <div className="flex justify-between items-center mt-2">
+                        <Link
+                          to={`/products/${product.id}/edit`}
+                          className="text-indigo-600 hover:underline inline-block"
+                        >
+                          Edit Product
+                        </Link>
+                        <button
+                          onClick={() => handleOpenDeleteModal(product.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <MdDelete size={24} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -207,6 +217,74 @@ const SellerPage = () => {
           )}
         </>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
+      <ReactModal
+        isOpen={showDeleteModal}
+        onRequestClose={handleCloseDeleteModal}
+        className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto relative"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+      >
+        {!deleteStatus ? (
+          <>
+            <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={handleCloseDeleteModal}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch(
+                      `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'}/products/delete/${selectedProductId}`,
+                      { method: 'DELETE' }
+                    );
+
+                    if (!response.ok) {
+                      throw new Error('Failed to delete product');
+                    }
+
+                    setProducts(products.filter((product) => product.id !== selectedProductId));
+                    setDeleteStatus('Product deleted successfully!');
+                  } catch (error) {
+                    console.error('Error deleting product:', error);
+                    setDeleteStatus('Failed to delete the product. Please try again.');
+                  }
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p
+              className={`text-center text-lg font-semibold ${
+                deleteStatus.includes('successfully') ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {deleteStatus}
+            </p>
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={handleCloseDeleteModal}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              >
+                Close
+              </button>
+            </div>
+          </>
+        )}
+      </ReactModal>
+
     </div>
   );
 };
