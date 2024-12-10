@@ -177,6 +177,39 @@ const SellerPage = () => {
                   + Add New Product
                 </button>
               </div>
+              {/* Latest Orders */}
+              <section className="mt-8">
+                <h2 className="text-2xl font-semibold mb-4">Latest Orders</h2>
+                <div className="bg-white shadow-md rounded-lg p-6">
+                  {orders.length === 0 ? (
+                    <p className="text-gray-600">No orders available</p>
+                  ) : (
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="py-2 px-4">Order ID</th>
+                          <th className="py-2 px-4">Customer</th>
+                          <th className="py-2 px-4">Item</th>
+                          <th className="py-2 px-4">Total Price</th>
+                          <th className="py-2 px-4">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Show only the first 5 orders */}
+                        {orders.slice(0, 5).map((order) => (
+                          <tr key={order.orderId} className="border-b hover:bg-gray-50">
+                            <td className="py-2 px-4">{order.orderId}</td>
+                            <td className="py-2 px-4">{order.customerName}</td>
+                            <td className="py-2 px-4">{order.itemName}</td>
+                            <td className="py-2 px-4">${order.totalPrice.toFixed(2)}</td>
+                            <td className="py-2 px-4">{new Date(order.orderDate).toLocaleDateString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </section>              
               {/* Product Management Section */}
               <section className="mt-8">
                 <h2 className="text-2xl font-semibold mb-4">Your Products</h2>
