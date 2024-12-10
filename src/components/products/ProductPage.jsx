@@ -105,6 +105,12 @@ const ProductPage = ({ addToCart, isLoggedIn, cartItems, setCartItems }) => {
     }
   };
 
+  const handleSellerClick = () => {
+    if (product?.sellerId) {
+      navigate(`/seller/${product.sellerId}`);
+    }
+  };
+
   if (!product) return <p>Loading...</p>;
 
   return (
@@ -148,7 +154,16 @@ const ProductPage = ({ addToCart, isLoggedIn, cartItems, setCartItems }) => {
             `$${product.price}`
           )}
         </p>
-
+        {/* Sold By Section */}
+        <p className="text-gray-700 mb-4">
+          <strong>Sold by:</strong>{' '}
+          <span
+            className="text-blue-500 cursor-pointer underline"
+            onClick={handleSellerClick}
+          >
+            {product.shopName || "Unknown Shop"}
+          </span>
+        </p>
         {/* Rating Display */}
         {product.averageRating > 0 && renderStars(product.averageRating)}
 
@@ -249,7 +264,9 @@ const ProductPage = ({ addToCart, isLoggedIn, cartItems, setCartItems }) => {
                 Close
               </button>
               <button
-                onClick={() => navigate('/login', { state: { redirectAfterLogin: '/place-order', product, quantity } })}
+                onClick={() =>
+                  navigate('/login', { state: { redirectAfterLogin: '/place-order', product, quantity } })
+                }
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
                 Login

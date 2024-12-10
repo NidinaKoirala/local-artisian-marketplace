@@ -29,6 +29,7 @@ import ManageProducts from "./components/admin/ManageProducts";
 import ManageSellers from "./components/admin/ManageSellers";
 import AccessDenied from "./AccessDenied";
 import PrivateRoute from "./PrivateRoute";
+import SellerProductsPage from './components/seller/SellerProductsPage';
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -102,6 +103,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/seller/:sellerId" element={<SellerProductsPage />} />
           <Route
             path="/product/:productName/:productId"
             element={
