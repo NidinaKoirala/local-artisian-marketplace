@@ -45,6 +45,7 @@ const Login = ({ setIsLoggedIn, setRole }) => {
 
       setIsLoggedIn(true);
       setRole(user.role);
+      localStorage.setItem('isSeller', user.role === 'seller'); // Save isSeller as "true" or "false"      
       // Redirect based on role
       if (user.role === 'admin') {
         navigate('/');
