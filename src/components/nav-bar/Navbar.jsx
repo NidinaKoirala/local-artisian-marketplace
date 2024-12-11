@@ -9,6 +9,7 @@ const Navbar = ({ cartItems }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSeller, setIsSeller] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);  
   const [searchQuery, setSearchQuery] = useState("");
   const [searchHistory, setSearchHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -19,6 +20,7 @@ const Navbar = ({ cartItems }) => {
     const user = JSON.parse(localStorage.getItem("user"));
     setIsLoggedIn(!!user);
     setIsSeller(localStorage.getItem("isSeller") === "true");
+    setIsAdmin(localStorage.getItem("isAdmin") === "true");
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -141,7 +143,7 @@ const Navbar = ({ cartItems }) => {
               >
                 Home
               </Link>
-              {!isSeller && (
+              {!isSeller && !isAdmin && (
                 <Link
                   to="/collection"
                   className="text-gray-700 font-medium hover:text-indigo-600 transition-colors"
@@ -165,7 +167,7 @@ const Navbar = ({ cartItems }) => {
             )}
 
             {/* Cart Icon */}
-            {!isSeller && <CartIcon cartCount={cartCount} />}
+            {!isSeller && !isAdmin && <CartIcon cartCount={cartCount} />}
           </div>
         </div>
       </div>
