@@ -108,6 +108,7 @@ const ManageUsers = () => {
           <table className="w-full mt-4 border border-gray-300 text-left">
             <thead className="bg-gray-100">
               <tr>
+                <th className="border p-2">User ID</th>
                 <th className="border p-2">Name</th>
                 <th className="border p-2">Email</th>
                 <th className="border p-2">Role</th>
@@ -117,6 +118,7 @@ const ManageUsers = () => {
             <tbody>
               {users.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
+                  <td className="border p-2">{user.id}</td>
                   <td className="border p-2">{user.fullName}</td>
                   <td className="border p-2">{user.email}</td>
                   <td className="border p-2">{user.role}</td>
