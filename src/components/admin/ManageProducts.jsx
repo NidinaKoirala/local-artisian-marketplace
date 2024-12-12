@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchData } from './utils/api'; // Utility to fetch data from the backend
+import { fetchData, deleteData } from './utils/api'; // Utility for API operations
 import AdminSidebar from './AdminSidebar'; // Include the Sidebar for consistent layout
 
 const ManageProducts = () => {
@@ -7,19 +7,21 @@ const ManageProducts = () => {
   const [products, setProducts] = useState([]);
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState({ message: '', type: '' }); // Feedback modal state
+  const [confirmDelete, setConfirmDelete] = useState(null); // Product ID for delete confirmation
 
   // Fetch all sellers on component mount
   useEffect(() => {
     setLoading(true);
     fetchData('/admin/sellers') // Replace with your backend endpoint
       .then((data) => {
-        // Log response to verify if `totalProducts` exists
-        console.log("Fetched Sellers:", data);
+        console.log('Fetched Sellers:', data);
         setSellers(data);
         setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching sellers:', error);
+        setFeedback({ message: 'Error fetching sellers', type: 'error' });
         setLoading(false);
       });
   }, []);
@@ -29,20 +31,30 @@ const ManageProducts = () => {
     setLoading(true);
     fetchData(`/admin/sellers/${sellerId}/products`) // Replace with your backend endpoint
       .then((data) => {
-        console.log("Fetched Products:", data);
+        console.log('Fetched Products:', data);
         setProducts(data);
         setSelectedSeller(sellers.find((seller) => seller.id === sellerId));
         setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching products:', error);
+        setFeedback({ message: 'Error fetching products', type: 'error' });
         setLoading(false);
       });
   };
 
+  // Remove a product
   const removeProduct = (productId) => {
-    console.log(`Remove product with ID: ${productId}`);
-    // Add logic to delete product via API
+    deleteData(`/admin/products/${productId}`) // Replace with your backend endpoint
+      .then(() => {
+        setProducts(products.filter((product) => product.id !== productId));
+        setFeedback({ message: 'Product removed successfully', type: 'success' });
+      })
+      .catch((error) => {
+        console.error('Error deleting product:', error);
+        setFeedback({ message: 'Failed to delete product', type: 'error' });
+      })
+      .finally(() => setConfirmDelete(null));
   };
 
   return (
@@ -106,7 +118,7 @@ const ManageProducts = () => {
                       <td className="p-4">{product.price}</td>
                       <td className="p-4 text-center">
                         <button
-                          onClick={() => removeProduct(product.id)}
+                          onClick={() => setConfirmDelete(product.id)}
                           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                         >
                           Remove
@@ -117,6 +129,56 @@ const ManageProducts = () => {
                 </tbody>
               </table>
             )}
+          </div>
+        )}
+
+        {/* Feedback Modal */}
+        {feedback.message && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div
+              className={`bg-white p-6 rounded shadow-lg w-1/3 text-center ${
+                feedback.type === 'success' ? 'border-green-500' : 'border-red-500'
+              }`}
+            >
+              <h3
+                className={`text-lg font-bold ${
+                  feedback.type === 'success' ? 'text-green-500' : 'text-red-500'
+                }`}
+              >
+                {feedback.type === 'success' ? 'Success' : 'Error'}
+              </h3>
+              <p className="mt-2">{feedback.message}</p>
+              <button
+                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                onClick={() => setFeedback({ message: '', type: '' })}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {confirmDelete && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded shadow-lg w-1/3 text-center">
+              <h3 className="text-lg font-bold text-red-500">Confirm Deletion</h3>
+              <p className="mt-2">Are you sure you want to delete this product?</p>
+              <div className="mt-4 flex justify-center gap-4">
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  onClick={() => setConfirmDelete(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  onClick={() => removeProduct(confirmDelete)}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
