@@ -61,9 +61,12 @@ const ManageOrders = () => {
     }
   };
 
+
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
+      document.documentElement.scrollTop = 0; // For most browsers
+      document.body.scrollTop = 0; // For Safari
     }
   };
 
