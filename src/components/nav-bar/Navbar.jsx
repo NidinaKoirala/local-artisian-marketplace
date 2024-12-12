@@ -9,7 +9,7 @@ const Navbar = ({ cartItems }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSeller, setIsSeller] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);  
+  const [isAdmin, setIsAdmin] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchHistory, setSearchHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -19,8 +19,8 @@ const Navbar = ({ cartItems }) => {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     setIsLoggedIn(!!user);
-    setIsSeller(localStorage.getItem("isSeller") === "true");
-    setIsAdmin(localStorage.getItem("isAdmin") === "true");
+    setIsSeller(user?.role === "seller");
+    setIsAdmin(user?.role === "admin");
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -44,6 +44,7 @@ const Navbar = ({ cartItems }) => {
       setSearchQuery("");
     }
   };
+
   const handleLogout = async () => {
     try {
       const response = await fetch(
@@ -68,6 +69,7 @@ const Navbar = ({ cartItems }) => {
       console.error("An error occurred during logout:", error);
     }
   };
+
   const handleHistoryClick = (query) => {
     navigate(`/collection?search=${encodeURIComponent(query)}`);
     setSearchQuery("");
@@ -94,8 +96,7 @@ const Navbar = ({ cartItems }) => {
               }`}
             />
             <span className="ml-2 text-lg font-bold text-gray-800 hidden sm:block">
-              Nepali
-              Hastakala
+              Nepali Hastakala
             </span>
           </Link>
 
@@ -163,10 +164,10 @@ const Navbar = ({ cartItems }) => {
             {isLoggedIn ? (
               <UserMenu isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
             ) : (
-            <AuthButtons handleNavigateToLogin={() => navigate("/login")} />
+              <AuthButtons handleNavigateToLogin={() => navigate("/login")} />
             )}
 
-            {/* Cart Icon */}
+            {/* Cart Icon - Shown for all users except admin and seller */}
             {!isSeller && !isAdmin && <CartIcon cartCount={cartCount} />}
           </div>
         </div>
