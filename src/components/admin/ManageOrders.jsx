@@ -4,24 +4,28 @@ import AdminHeader from './AdminHeader';
 import { fetchData, sendData, deleteData } from './utils/api';
 
 const ManageOrders = () => {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState([]); // Ensure orders is initialized as an empty array
   const [groupBy, setGroupBy] = useState('seller'); // Default grouping by seller
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState({ message: '', type: '' }); // For feedback messages
+  const [currentPage, setCurrentPage] = useState(1); // Current page for pagination
+  const [totalPages, setTotalPages] = useState(0); // Total number of pages
 
   useEffect(() => {
     fetchOrders();
-  }, [groupBy]);
+  }, [groupBy, currentPage]);
 
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const data = await fetchData(`/admin/orders?groupBy=${groupBy}`);
-      setOrders(data);
+      const data = await fetchData(`/admin/orders?groupBy=${groupBy}&page=${currentPage}&limit=20`);
+      setOrders(data.orders || []); // Ensure orders is always an array
+      setTotalPages(data.totalPages || 0); // Handle missing totalPages gracefully
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
       setFeedback({ message: 'Failed to load orders', type: 'error' });
+      setOrders([]); // Set orders to an empty array on failure
       setLoading(false);
     }
   };
@@ -48,6 +52,12 @@ const ManageOrders = () => {
     }
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="flex">
       <AdminSidebar />
@@ -55,7 +65,7 @@ const ManageOrders = () => {
         <AdminHeader title="Manage Orders" />
         {loading ? (
           <div className="text-blue-500 text-center mt-6">Loading orders...</div>
-        ) : (
+        ) : orders.length > 0 ? (
           <>
             <div className="flex justify-between mb-4">
               <h2 className="text-xl font-bold">Orders</h2>
@@ -107,7 +117,30 @@ const ManageOrders = () => {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center mt-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              <span className="px-4 py-2">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
           </>
+        ) : (
+          <div className="text-center text-gray-500 mt-6">No orders found.</div>
         )}
 
         {/* Feedback Modal */}
