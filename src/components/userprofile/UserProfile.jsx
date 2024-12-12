@@ -75,6 +75,7 @@ const UserProfile = () => {
               Packed: 'bg-yellow-500 text-white',
               'Ready to Ship': 'bg-orange-500 text-white',
               Delivered: 'bg-green-500 text-white',
+              Cancelled: "bg-red-500 text-white",
             };
 
             const statusClass = statusColors[statusData.status] || 'bg-gray-500 text-white';

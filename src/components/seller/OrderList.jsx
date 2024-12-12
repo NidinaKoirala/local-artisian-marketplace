@@ -12,7 +12,9 @@ const OrderList = ({ orders, onUpdateOrderStatus }) => {
     for (const order of orders) {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5174"}/order/status?orderId=${order.orderId}`
+          `${
+            import.meta.env.VITE_BACKEND_URL || "http://localhost:5174"
+          }/order/status?orderId=${order.orderId}`
         );
         if (response.ok) {
           const { status } = await response.json();
@@ -38,8 +40,7 @@ const OrderList = ({ orders, onUpdateOrderStatus }) => {
       orders.filter((order) => {
         const matchesStatus =
           statusFilter === "All" || orderStatuses[order.orderId] === statusFilter;
-        const matchesSearch =
-          order.orderId.toString().includes(searchQuery.trim());
+        const matchesSearch = order.orderId.toString().includes(searchQuery.trim());
         return matchesStatus && matchesSearch;
       })
     );
@@ -75,10 +76,9 @@ const OrderList = ({ orders, onUpdateOrderStatus }) => {
       orderStatuses[order.orderId] || "Unknown",
     ]);
 
-    const csvContent =
-      [headers, ...rows]
-        .map((row) => row.map((cell) => `"${cell}"`).join(","))
-        .join("\n");
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -93,7 +93,9 @@ const OrderList = ({ orders, onUpdateOrderStatus }) => {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5174"}/order/status`,
+        `${
+          import.meta.env.VITE_BACKEND_URL || "http://localhost:5174"
+        }/order/status`,
         {
           method: "PUT",
           headers: {
@@ -130,14 +132,16 @@ const OrderList = ({ orders, onUpdateOrderStatus }) => {
         return "bg-orange-500 text-white";
       case "Delivered":
         return "bg-green-500 text-white";
+      case "Cancelled":
+        return "bg-red-500 text-white";
       default:
         return "bg-gray-500 text-white";
     }
   };
 
   return (
-      <div className="bg-white shadow-lg rounded-lg p-6 mb-6 w-[95vw] max-w-[1200px] mx-auto">
-        <div className="flex justify-between items-center mb-4">
+    <div className="bg-white shadow-lg rounded-lg p-6 mb-6 w-[95vw] max-w-[1200px] mx-auto">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Orders</h2>
         <div className="flex items-center gap-4">
           <input
@@ -158,6 +162,7 @@ const OrderList = ({ orders, onUpdateOrderStatus }) => {
             <option value="Packed">Packed</option>
             <option value="Ready to Ship">Ready to Ship</option>
             <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
           </select>
 
           <button
@@ -222,6 +227,7 @@ const OrderList = ({ orders, onUpdateOrderStatus }) => {
                     <option value="Packed">Packed</option>
                     <option value="Ready to Ship">Ready to Ship</option>
                     <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
                   </select>
                 </td>
               </tr>
