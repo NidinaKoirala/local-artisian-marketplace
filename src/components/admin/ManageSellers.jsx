@@ -27,26 +27,31 @@ const ManageSellers = () => {
         setLoading(false);
       });
   };
-
-  // Remove seller by ID
-  const removeSeller = (id) => {
-    fetch(`/admin/sellers/${id}`, {
-      method: "DELETE",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to delete seller");
-        }
+// Remove seller by ID
+const removeSeller = (id) => {
+  fetchData(`/admin/sellers/${id}`, {
+    method: "DELETE",
+  })
+    .then((data) => {
+      // Check if the backend response indicates success
+      if (data?.message && !data.error) {
         setSellers(sellers.filter((seller) => seller.id !== id));
-        setFeedback({ message: "Seller removed successfully", type: "success" });
-      })
-      .catch((error) => {
-        console.error("Error deleting seller:", error);
-        setFeedback({ message: "Failed to delete seller", type: "error" });
-      })
-      .finally(() => setConfirmDelete(null));
-  };
-
+        setFeedback({ message: data.message, type: "success" });
+      } else {
+        // Handle case where response does not indicate success
+        throw new Error(data.error || "Failed to delete seller");
+      }
+    })
+    .catch((error) => {
+      // Log and display error messages from backend or fallback message
+      console.error("Error deleting seller:", error);
+      setFeedback({ message: error.message || "Failed to delete seller", type: "error" });
+    })
+    .finally(() => {
+      // Clear confirmation state
+      setConfirmDelete(null);
+    });
+};
   return (
     <div className="flex">
       <AdminSidebar />
@@ -64,6 +69,9 @@ const ManageSellers = () => {
               <thead className="bg-gray-200">
                 <tr>
                   <th className="text-left p-4 text-gray-800 font-semibold">
+                    Seller ID
+                  </th>
+                  <th className="text-left p-4 text-gray-800 font-semibold">
                     Name
                   </th>
                   <th className="text-left p-4 text-gray-800 font-semibold">
@@ -77,6 +85,7 @@ const ManageSellers = () => {
               <tbody>
                 {sellers.map((seller) => (
                   <tr key={seller.id} className="border-t hover:bg-gray-100">
+                    <td className="p-4 text-gray-700">{seller.id}</td>
                     <td className="p-4 text-gray-700">{seller.shopName}</td>
                     <td className="p-4 text-gray-700">{seller.email}</td>
                     <td className="p-4 text-center">
