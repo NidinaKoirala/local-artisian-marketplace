@@ -11,6 +11,7 @@ const ManageOrders = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page for pagination
   const [totalPages, setTotalPages] = useState(0); // Total number of pages
   const [searchOrderId, setSearchOrderId] = useState(''); // For tracking search input
+  const [confirmation, setConfirmation] = useState(null); // Confirmation state
 
   useEffect(() => {
     fetchOrders();
@@ -19,22 +20,19 @@ const ManageOrders = () => {
   const fetchOrders = async (searchOrderId = null) => {
     setLoading(true);
     try {
-      // Construct the API URL dynamically based on whether searchOrderId is provided
       let url = `/admin/orders?groupBy=${groupBy}&page=${currentPage}&limit=20`;
       if (searchOrderId) {
         url = `/admin/orders?orderId=${searchOrderId}`;
       }
 
       const data = await fetchData(url);
-
-      // Update state with fetched data
-      setOrders(data.orders || []); // Ensure orders is always an array
-      setTotalPages(data.totalPages || 0); // Handle missing totalPages gracefully
+      setOrders(data.orders || []);
+      setTotalPages(data.totalPages || 0);
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
       setFeedback({ message: 'Failed to load orders', type: 'error' });
-      setOrders([]); // Set orders to an empty array on failure
+      setOrders([]);
       setLoading(false);
     }
   };
@@ -61,26 +59,36 @@ const ManageOrders = () => {
     }
   };
 
-
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      document.documentElement.scrollTop = 0; // For most browsers
-      document.body.scrollTop = 0; // For Safari
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     }
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchOrderId.trim() === "") {
-      // If search box is empty, fetch all orders
+    if (searchOrderId.trim() === '') {
       fetchOrders();
     } else {
-      // Fetch orders by specific order ID
       fetchOrders(searchOrderId.trim());
     }
   };
-  
+
+  const handleActionConfirmation = async () => {
+    if (!confirmation) return;
+    const { action, orderId } = confirmation;
+
+    if (action === 'Cancel') {
+      await updateOrderStatus(orderId, 'Cancelled');
+    } else if (action === 'Delete') {
+      await deleteOrder(orderId);
+    }
+
+    setConfirmation(null);
+  };
+
   return (
     <div className="flex">
       <AdminSidebar />
@@ -100,8 +108,8 @@ const ManageOrders = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setSearchOrderId("");
-                    fetchOrders(); // Fetch all orders when cleared
+                    setSearchOrderId('');
+                    fetchOrders();
                   }}
                   className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-800"
                 >
@@ -151,13 +159,13 @@ const ManageOrders = () => {
                   <td className="border p-2">{order.status}</td>
                   <td className="border p-2 flex gap-2">
                     <button
-                      onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                      onClick={() => setConfirmation({ action: 'Cancel', orderId: order.id })}
                       className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
                     >
                       Cancel
                     </button>
                     <button
-                      onClick={() => deleteOrder(order.id)}
+                      onClick={() => setConfirmation({ action: 'Delete', orderId: order.id })}
                       className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                     >
                       Delete
@@ -172,7 +180,6 @@ const ManageOrders = () => {
             No orders found. Use the search bar to look for specific orders or clear the search.
           </div>
         )}
-        {/* Pagination Controls */}
         <div className="flex justify-center items-center mt-4">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
@@ -192,24 +199,26 @@ const ManageOrders = () => {
             Next
           </button>
         </div>
-        {/* Feedback Modal */}
-        {feedback.message && (
+        {confirmation && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded shadow-lg w-1/3 text-center">
-              <h3
-                className={`text-lg font-bold ${
-                  feedback.type === 'success' ? 'text-green-500' : 'text-red-500'
-                }`}
-              >
-                {feedback.type === 'success' ? 'Success' : 'Error'}
+              <h3 className="text-lg font-bold mb-4">
+                Are you sure you want to {confirmation.action.toLowerCase()} this order?
               </h3>
-              <p className="mt-2">{feedback.message}</p>
-              <button
-                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                onClick={() => setFeedback({ message: '', type: '' })}
-              >
-                Close
-              </button>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={handleActionConfirmation}
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setConfirmation(null)}
+                  className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}
