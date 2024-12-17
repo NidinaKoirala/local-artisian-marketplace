@@ -12,6 +12,7 @@ const ManageOrders = () => {
   const [totalPages, setTotalPages] = useState(0); // Total number of pages
   const [searchOrderId, setSearchOrderId] = useState(''); // For tracking search input
   const [confirmation, setConfirmation] = useState(null); // Confirmation state
+  const [orderSort, setOrderSort] = useState('desc');
 
   useEffect(() => {
     fetchOrders();
@@ -88,7 +89,18 @@ const ManageOrders = () => {
 
     setConfirmation(null);
   };
-
+  const sortOrdersById = () => {
+    const sortedOrders = [...orders].sort((a, b) => {
+      if (orderSort === 'desc') {
+        return a.id < b.id ? 1 : -1;
+      } else {
+        return a.id > b.id ? 1 : -1;
+      }
+    });
+    setOrders(sortedOrders);
+    setOrderSort(orderSort === 'desc' ? 'asc' : 'desc'); // Toggle sorting direction
+  };  
+  
   return (
     <div className="flex">
       <AdminSidebar />
@@ -139,7 +151,9 @@ const ManageOrders = () => {
           <table className="w-full mt-4 border border-gray-300 text-left">
             <thead className="bg-gray-100">
               <tr>
-                <th className="border p-2">Order ID</th>
+                 <th className="border p-2 cursor-pointer" onClick={sortOrdersById}>
+                  Order ID {orderSort === 'desc' ? '↓' : '↑'}
+                </th>
                 <th className="border p-2">Buyer/Seller</th>
                 <th className="border p-2">Item</th>
                 <th className="border p-2">Quantity</th>
