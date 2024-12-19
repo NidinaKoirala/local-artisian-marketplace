@@ -84,8 +84,10 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          paymentMethod: 'Card',
-          totalAmount: total,
+          userId: user.id,
+          orderItems,
+          paymentMethod,
+          amount: Math.round(grandTotal * 100), // Send amount in cents
         }),
       });
 
