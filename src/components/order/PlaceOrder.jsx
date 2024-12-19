@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import StripePayment from './StripePayment';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 
@@ -8,20 +9,23 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [addressData, setAddressData] = useState({});
-  const [orderMessage, setOrderMessage] = useState(''); // To display order status
-  const [isProcessing, setIsProcessing] = useState(false); // To disable button while processing
+  const [orderMessage, setOrderMessage] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('COD'); // Default payment method
+  const [showStripePayment, setShowStripePayment] = useState(false);
+
+  const CODCharge = 1.25; // Delivery Fee for COD only
+
   const navigate = useNavigate();
   const location = useLocation();
 
   const product = location.state?.product;
   const quantity = location.state?.quantity || 1;
 
-  const orderItems = product
-    ? [{ ...product, quantity }]
-    : cartItems;
+  const orderItems = product ? [{ ...product, quantity }] : cartItems;
 
   const itemsTotal = orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
-  const deliveryFee = 1.25;
+  const deliveryFee = paymentMethod === 'COD' ? CODCharge : 0;
   const grandTotal = itemsTotal + deliveryFee;
 
   useEffect(() => {
@@ -86,17 +90,25 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
     }
   };
 
-  const handlePayNow = async () => {
+  const handlePayNow = () => {
     if (!user) {
       setShowLoginModal(true);
       return;
     }
 
+    if (paymentMethod === 'Card') {
+      setShowStripePayment(true);
+      return;
+    }
+
+    placeOrder();
+  };
+
+  const placeOrder = async () => {
     setIsProcessing(true);
     setOrderMessage('');
 
     try {
-      // Backend call to place the order and update stock
       const response = await fetch(`${backendUrl}/order/place`, {
         method: 'POST',
         headers: {
@@ -105,6 +117,7 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
         body: JSON.stringify({
           userId: user.id,
           orderItems,
+          paymentMethod,
         }),
       });
 
@@ -116,7 +129,6 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
       const result = await response.json();
       setOrderMessage('Order placed successfully! View your order history.');
 
-      // Clear the cart if `setCartItems` is provided
       if (setCartItems) {
         setCartItems([]);
         localStorage.setItem('cartItems', JSON.stringify([]));
@@ -127,6 +139,11 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleStripeSuccess = () => {
+    placeOrder();
+    setShowStripePayment(false);
   };
 
   const closeModal = () => setShowLoginModal(false);
@@ -140,7 +157,6 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
     <div className="p-10 max-w-2xl mx-auto bg-white shadow-lg rounded-lg">
       <h2 className="text-3xl font-bold mb-4">Place Order</h2>
 
-      {/* Shipping Address Section */}
       <div className="mb-6">
         <h3 className="text-xl font-semibold">Shipping Address</h3>
         {isEditingAddress ? (
@@ -153,7 +169,6 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
               placeholder="Address Line 1"
               className="w-full mb-2 px-4 py-2 border rounded-md"
             />
-            {/* Remaining inputs omitted for brevity */}
           </div>
         ) : (
           <div>
@@ -165,7 +180,6 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
         )}
       </div>
 
-      {/* Order Summary */}
       <div className="mb-6">
         <h3 className="text-xl font-semibold">Order Summary</h3>
         {orderItems.map((item, index) => (
@@ -178,17 +192,40 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
           <span>Items Total</span>
           <span>${itemsTotal.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between items-center mt-1">
-          <span>Delivery Fee</span>
-          <span>${deliveryFee.toFixed(2)}</span>
-        </div>
+        {paymentMethod === 'COD' && (
+          <div className="flex justify-between items-center mt-1">
+            <span>Delivery Fee (COD)</span>
+            <span>${deliveryFee.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between items-center mt-4 text-lg font-bold">
           <span>Total</span>
           <span>${grandTotal.toFixed(2)}</span>
         </div>
       </div>
 
-      {/* Pay Now Button */}
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold">Payment Method</h3>
+        <div className="flex space-x-4">
+          <div
+            onClick={() => setPaymentMethod('COD')}
+            className={`cursor-pointer px-4 py-2 border rounded-md text-center ${
+              paymentMethod === 'COD' ? 'bg-indigo-500 text-white' : 'bg-gray-200'
+            }`}
+          >
+            Cash on Delivery
+          </div>
+          <div
+            onClick={() => setPaymentMethod('Card')}
+            className={`cursor-pointer px-4 py-2 border rounded-md text-center ${
+              paymentMethod === 'Card' ? 'bg-indigo-500 text-white' : 'bg-gray-200'
+            }`}
+          >
+            Credit/Debit Card
+          </div>
+        </div>
+      </div>
+
       <button
         onClick={handlePayNow}
         className={`w-full ${isProcessing ? 'bg-gray-400' : 'bg-indigo-600'} text-white py-2 rounded-lg font-medium hover:bg-indigo-500 transition-colors`}
@@ -197,16 +234,18 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
         {isProcessing ? 'Processing...' : 'Place Order'}
       </button>
 
-      {/* Order Message */}
       {orderMessage && (
         <div className="mt-6 text-center">
-          <p className={`text-lg font-semibold ${orderMessage.includes('successfully') ? 'text-green-500' : 'text-red-500'}`}>
+          <p
+            className={`text-lg font-semibold ${
+              orderMessage.includes('successfully') ? 'text-green-500' : 'text-red-500'
+            }`}
+          >
             {orderMessage}
           </p>
         </div>
       )}
 
-      {/* Login Modal */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-md w-full">
@@ -219,6 +258,14 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
             </button>
           </div>
         </div>
+      )}
+
+      {showStripePayment && (
+        <StripePayment
+          total={grandTotal}
+          onClose={() => setShowStripePayment(false)}
+          onOrderPlaced={handleStripeSuccess}
+        />
       )}
     </div>
   );

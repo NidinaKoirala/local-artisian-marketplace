@@ -14,7 +14,7 @@ const Cart = ({ cartItems, setCartItems }) => {
   }, []);
 
   const cartTotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-  const shippingFee = 10.00; //fixed shipping fee
+  const shippingFee = 1.25; //fixed shipping fee
   const grandTotal = cartTotal + shippingFee;
 
   const increaseQuantity = (itemId) => {
