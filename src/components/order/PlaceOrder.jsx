@@ -14,7 +14,7 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
   const [paymentMethod, setPaymentMethod] = useState('COD'); // Default payment method
   const [showStripePayment, setShowStripePayment] = useState(false);
 
-  const CODCharge = 1.25; // Delivery Fee for COD only
+  const CODCharge = 1.25; // Delivery Fee for COD
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,6 +54,7 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
         });
       } catch (error) {
         console.error(error);
+        setOrderMessage('Error loading user details. Please try again later.');
       }
     };
 
@@ -87,6 +88,7 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
       setIsEditingAddress(false);
     } catch (error) {
       console.error(error);
+      setOrderMessage('Failed to save address. Please try again.');
     }
   };
 
@@ -118,6 +120,7 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
           userId: user.id,
           orderItems,
           paymentMethod,
+          amount: Math.round(grandTotal * 100), // Send amount in cents
         }),
       });
 

@@ -11,11 +11,10 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
   const elements = useElements();
   const [clientSecret, setClientSecret] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState(null); // For success view
-  const [orderDetails, setOrderDetails] = useState(null); // For storing order data
-  const [errorMessage, setErrorMessage] = useState(''); // For displaying errors
+  const [paymentStatus, setPaymentStatus] = useState(null); // Payment status
+  const [orderDetails, setOrderDetails] = useState(null); // Store order details
+  const [errorMessage, setErrorMessage] = useState(''); // Store errors
 
-  // Fetch client secret from backend
   useEffect(() => {
     const fetchClientSecret = async () => {
       try {
@@ -24,7 +23,7 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ amount: Math.round(total * 100) }), // Convert amount to cents
+          body: JSON.stringify({ amount: Math.round(total * 100) }), // Convert to cents
         });
 
         const data = await response.json();
@@ -51,7 +50,7 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
     }
 
     setIsProcessing(true);
-    setErrorMessage(''); // Clear any previous error
+    setErrorMessage('');
 
     try {
       const cardElement = elements.getElement(CardElement);
@@ -66,7 +65,6 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
         console.error('Payment Error:', error);
         setErrorMessage(error.message || 'Payment failed. Please try again.');
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Place the order
         await placeOrder();
         setPaymentStatus('success');
       }
@@ -96,8 +94,8 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
       }
 
       const orderData = await response.json();
-      setOrderDetails(orderData); // Save order details
-      onOrderPlaced?.(orderData); // Notify parent component
+      setOrderDetails(orderData);
+      onOrderPlaced?.(orderData);
     } catch (error) {
       console.error('Error placing order:', error);
       setErrorMessage('Failed to place order. Please contact support.');
