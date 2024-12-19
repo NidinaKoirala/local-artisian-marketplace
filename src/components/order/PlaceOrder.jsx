@@ -13,6 +13,7 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('COD'); // Default payment method
   const [showStripePayment, setShowStripePayment] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const CODCharge = 1.25; // Delivery Fee for COD
 
@@ -103,7 +104,7 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
       return;
     }
 
-    placeOrder();
+    placeOrder(); // For COD
   };
 
   const placeOrder = async () => {
@@ -136,6 +137,9 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
         setCartItems([]);
         localStorage.setItem('cartItems', JSON.stringify([]));
       }
+
+      // Trigger success popup
+      setShowSuccessPopup(true);
     } catch (error) {
       console.error('Error placing order:', error);
       setOrderMessage(error.message || 'Failed to place order. Please try again.');
@@ -144,10 +148,47 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
     }
   };
 
-  const handleStripeSuccess = () => {
-    placeOrder();
-    setShowStripePayment(false);
-  };
+  const handleStripeSuccess = async () => {
+    setIsProcessing(true); // Ensure consistent state updates
+    setOrderMessage('Payment confirmed! Placing your order...');
+    
+    try {
+        const response = await fetch(`${backendUrl}/order/place`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: user.id,
+                orderItems,
+                paymentMethod: 'Card', // Explicitly indicate payment method as Card
+                amount: Math.round(grandTotal * 100), // Send amount in cents
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to place order');
+        }
+
+        const result = await response.json();
+
+        setOrderMessage('Order placed successfully! View your order history.');
+
+        if (setCartItems) {
+            setCartItems([]);
+            localStorage.setItem('cartItems', JSON.stringify([]));
+        }
+        setShowStripePayment(false); // Close the payment modal
+        setShowSuccessPopup(true);        
+    } catch (error) {
+        console.error('Error placing order after payment:', error);
+        setOrderMessage(error.message || 'Failed to place order. Please try again.');
+    } finally {
+        setIsProcessing(false);
+    }
+};
+
 
   const closeModal = () => setShowLoginModal(false);
 
@@ -163,23 +204,21 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
       <div className="mb-6">
         <h3 className="text-xl font-semibold">Shipping Address</h3>
         {isEditingAddress ? (
-          <div className="mt-4">
-            <input
-              type="text"
-              name="addressLine1"
-              value={addressData.addressLine1 || ''}
-              onChange={handleAddressChange}
-              placeholder="Address Line 1"
-              className="w-full mb-2 px-4 py-2 border rounded-md"
-            />
-          </div>
+          <input
+            type="text"
+            name="addressLine1"
+            value={addressData.addressLine1 || ''}
+            onChange={handleAddressChange}
+            placeholder="Address Line 1"
+            className="w-full mb-2 px-4 py-2 border rounded-md"
+          />
         ) : (
-          <div>
-            <p>{user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`}</p>
+          <>
+            <p>{user?.fullName}</p>
             <p>{user?.email}</p>
             <p>{user?.phoneNumber}</p>
             <p>{user?.addressLine1}</p>
-          </div>
+          </>
         )}
       </div>
 
@@ -262,12 +301,33 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
           </div>
         </div>
       )}
-
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
+            <h3 className="text-2xl font-bold mb-4">Order Placed Successfully!</h3>
+            <p className="mb-4">What would you like to do next?</p>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => navigate('/profile')}
+                className="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500 transition"
+              >
+                View Order History
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition"
+              >
+                Go to Homepage
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {showStripePayment && (
         <StripePayment
           total={grandTotal}
           onClose={() => setShowStripePayment(false)}
-          onOrderPlaced={handleStripeSuccess}
+          onPaymentConfirmed={handleStripeSuccess}
         />
       )}
     </div>

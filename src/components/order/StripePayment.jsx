@@ -4,17 +4,16 @@ import { Elements, useStripe, useElements, CardElement } from '@stripe/react-str
 
 // Initialize Stripe with public key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'; // Backend URL
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'; // Backend URL
 
-const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
+const StripePaymentForm = ({ total, onClose, onPaymentConfirmed }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [clientSecret, setClientSecret] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState(null); // Payment status
-  const [orderDetails, setOrderDetails] = useState(null); // Store order details
-  const [errorMessage, setErrorMessage] = useState(''); // Store errors
+  const [errorMessage, setErrorMessage] = useState('');
 
+  // Fetch client secret for Stripe payment intent
   useEffect(() => {
     const fetchClientSecret = async () => {
       try {
@@ -65,8 +64,9 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
         console.error('Payment Error:', error);
         setErrorMessage(error.message || 'Payment failed. Please try again.');
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        await placeOrder();
-        setPaymentStatus('success');
+        console.log('Payment succeeded.');
+        onPaymentConfirmed(); // Notify parent about successful payment
+        onClose(); // Close the payment modal
       }
     } catch (error) {
       console.error('Error processing payment:', error);
@@ -75,52 +75,6 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
       setIsProcessing(false);
     }
   };
-
-  const placeOrder = async () => {
-    try {
-      const response = await fetch(`${backendUrl}/order/place`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          orderItems,
-          paymentMethod,
-          amount: Math.round(grandTotal * 100), // Send amount in cents
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to place order.');
-      }
-
-      const orderData = await response.json();
-      setOrderDetails(orderData);
-      onOrderPlaced?.(orderData);
-    } catch (error) {
-      console.error('Error placing order:', error);
-      setErrorMessage('Failed to place order. Please contact support.');
-    }
-  };
-
-  if (paymentStatus === 'success' && orderDetails) {
-    return (
-      <div className="p-8 bg-white rounded-lg shadow-lg max-w-2xl w-full mx-auto space-y-6 text-center">
-        <h2 className="text-2xl font-bold text-green-600">Payment Successful!</h2>
-        <p>Your order has been placed successfully.</p>
-        <p>
-          <strong>Order ID:</strong> {orderDetails.id}
-        </p>
-        <button
-          onClick={onClose}
-          className="w-full py-3 text-white bg-indigo-600 font-bold rounded-lg hover:bg-indigo-500 transition-colors"
-        >
-          Close
-        </button>
-      </div>
-    );
-  }
 
   return (
     <form
@@ -174,11 +128,11 @@ const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
   );
 };
 
-const StripePayment = ({ total, onClose, onOrderPlaced }) => {
+const StripePayment = ({ total, onClose, onPaymentConfirmed }) => {
   return (
     <Elements stripe={stripePromise}>
       <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-        <StripePaymentForm total={total} onClose={onClose} onOrderPlaced={onOrderPlaced} />
+        <StripePaymentForm total={total} onClose={onClose} onPaymentConfirmed={onPaymentConfirmed} />
       </div>
     </Elements>
   );
