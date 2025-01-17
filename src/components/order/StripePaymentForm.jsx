@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'; // Backend URL
+const backendUrl = import.meta.env.VITE_BACKEND_URL // Backend URL
 
 const StripePaymentForm = ({ total, onClose, onOrderPlaced }) => {
   const stripe = useStripe();

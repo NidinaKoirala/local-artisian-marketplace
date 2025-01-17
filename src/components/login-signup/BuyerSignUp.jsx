@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
+const backendUrl = import.meta.env.VITE_BACKEND_URL
 
 const BuyerSignup = () => {
   const [formData, setFormData] = useState({

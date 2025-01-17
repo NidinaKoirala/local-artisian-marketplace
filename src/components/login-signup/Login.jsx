@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
+const backendUrl = import.meta.env.VITE_BACKEND_URL
 
 const Login = ({ setIsLoggedIn, setRole }) => {
   const [email, setEmail] = useState('');

@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
+import PropTypes from "prop-types";
 import { assets } from '../../assets/assets';
 import { Link, useNavigate } from 'react-router-dom';
 import CartModal from '../cart/CartModal';
 import Newsletterbox from '../other/Newsletterbox';
-import ProductSlider from '../products/ProductSlider';
+// import ProductSlider from '../products/ProductSlider';
 import Ourpolicies from '../details/Ourpolicies';
 import TopSales from './TopSales';
 import JustForYou from './JustForYou'; 
 import ShopByCategory from './ShopByCategory';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
+const backendUrl = import.meta.env.VITE_BACKEND_URL
 
 const HomePage = ({ addToCart }) => {
   const [items, setItems] = useState([]);
@@ -32,7 +33,7 @@ const HomePage = ({ addToCart }) => {
   useEffect(() => {
     const fetchItemsAndCategories = async () => {
       try {
-        const itemsResponse = await fetch(`${backendUrl}/items`);
+        const itemsResponse = await fetch(`${backendUrl}/product/items`);
         const itemsData = await itemsResponse.json();
         setItems(itemsData.items || []);
         
@@ -160,6 +161,9 @@ const HomePage = ({ addToCart }) => {
       {showModal && <CartModal closeModal={() => setShowModal(false)} />}
     </div>
   );
+};
+HomePage.propTypes = {
+  addToCart: PropTypes.func.isRequired, // Ensure addToCart is a required function
 };
 
 export default HomePage;

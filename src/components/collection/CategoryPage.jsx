@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import  { useState, useEffect } from 'react';
+import PropTypes from "prop-types";
+import { useParams, useNavigate } from 'react-router-dom';
 import ProductSlider from '../products/ProductSlider';
 import CartModal from '../cart/CartModal';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const CategoryPage = ({ addToCart }) => {
   const { category } = useParams();
@@ -18,7 +19,7 @@ const CategoryPage = ({ addToCart }) => {
   useEffect(() => {
     const fetchCategoryProducts = async () => {
       try {
-        const response = await fetch(`${backendUrl}/items`);
+        const response = await fetch(`${backendUrl}/product/items`);
         const data = await response.json();
         const categoryProducts = data.items.filter(item => item.category === category);
         setProducts(categoryProducts);
@@ -120,5 +121,8 @@ const CategoryPage = ({ addToCart }) => {
     </div>
   );
 };
+// CategoryPage.propTypes = {
+//   addToCart: PropTypes.func.isRequired, // Ensure addToCart is a required function
+// };
 
 export default CategoryPage;

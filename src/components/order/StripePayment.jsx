@@ -4,7 +4,7 @@ import { Elements, useStripe, useElements, CardElement } from '@stripe/react-str
 
 // Initialize Stripe with public key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'; // Backend URL
+const backendUrl = import.meta.env.VITE_BACKEND_URL // Backend URL
 
 const StripePaymentForm = ({ total, onClose, onPaymentConfirmed }) => {
   const stripe = useStripe();

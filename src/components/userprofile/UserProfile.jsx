@@ -4,7 +4,7 @@ import OrderHistoryTable from './OrderHistoryTable';
 import ReviewModal from './ReviewModal';
 import SuccessMessage from './SuccessMessage';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
+const backendUrl = import.meta.env.VITE_BACKEND_URL
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);

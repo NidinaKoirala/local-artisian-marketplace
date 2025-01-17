@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProductSlider from '../products/ProductSlider';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const TopSales = ({ addToCart }) => {
   const [topSales, setTopSales] = useState([]);
@@ -13,7 +13,7 @@ const TopSales = ({ addToCart }) => {
   useEffect(() => {
     const fetchTopSales = async () => {
       try {
-        const response = await fetch(`${backendUrl}/items`);
+        const response = await fetch(`${backendUrl}/product/items`);
         const data = await response.json();
 
         // Sort items by soldQuantity in descending order

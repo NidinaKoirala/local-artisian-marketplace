@@ -1,4 +1,4 @@
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 /**
  * Fetch data from the backend

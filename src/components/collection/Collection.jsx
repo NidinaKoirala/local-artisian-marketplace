@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import react, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useNavigate, useLocation } from "react-router-dom";
 import CartModal from "../cart/CartModal";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5174";
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Collection = ({ addToCart }) => {
   const [items, setItems] = useState([]);
@@ -25,7 +26,7 @@ const Collection = ({ addToCart }) => {
   useEffect(() => {
     const fetchItemsAndCategories = async () => {
       try {
-        const itemsResponse = await fetch(`${backendUrl}/items`);
+        const itemsResponse = await fetch(`${backendUrl}/product/items`);
         const itemsData = await itemsResponse.json();
         setItems(itemsData.items || []);
 
@@ -363,5 +364,7 @@ const Collection = ({ addToCart }) => {
     </div>
   );
 };
-
+Collection.propTypes = {
+  addToCart: PropTypes.func.isRequired, // Ensure addToCart is a required function
+};
 export default Collection;
