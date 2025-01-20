@@ -1,10 +1,9 @@
-import  { useState, useEffect } from 'react';
-import PropTypes from "prop-types";
+import  React, { useState, useEffect } from 'react';
 import { assets } from '../../assets/assets';
 import { Link, useNavigate } from 'react-router-dom';
 import CartModal from '../cart/CartModal';
 import Newsletterbox from '../other/Newsletterbox';
-// import ProductSlider from '../products/ProductSlider';
+import ProductSlider from '../products/ProductSlider';
 import Ourpolicies from '../details/Ourpolicies';
 import TopSales from './TopSales';
 import JustForYou from './JustForYou'; 
@@ -37,7 +36,7 @@ const HomePage = ({ addToCart }) => {
         const itemsData = await itemsResponse.json();
         setItems(itemsData.items || []);
         
-        const categoriesResponse = await fetch(`${backendUrl}/categories`);
+        const categoriesResponse = await fetch(`${backendUrl}/product/items/categories`);
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
       } catch (error) {
@@ -161,9 +160,6 @@ const HomePage = ({ addToCart }) => {
       {showModal && <CartModal closeModal={() => setShowModal(false)} />}
     </div>
   );
-};
-HomePage.propTypes = {
-  addToCart: PropTypes.func.isRequired, // Ensure addToCart is a required function
 };
 
 export default HomePage;

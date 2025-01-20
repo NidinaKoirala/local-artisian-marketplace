@@ -30,7 +30,7 @@ const Collection = ({ addToCart }) => {
         const itemsData = await itemsResponse.json();
         setItems(itemsData.items || []);
 
-        const categoriesResponse = await fetch(`${backendUrl}/categories`);
+        const categoriesResponse = await fetch(`${backendUrl}/product/items/categories`);
         const categoriesData = await categoriesResponse.json();
         setCategories(["All", ...categoriesData]);
       } catch (error) {

@@ -121,8 +121,6 @@ const CategoryPage = ({ addToCart }) => {
     </div>
   );
 };
-// CategoryPage.propTypes = {
-//   addToCart: PropTypes.func.isRequired, // Ensure addToCart is a required function
-// };
+
 
 export default CategoryPage;
