@@ -33,11 +33,11 @@ const HomePage = ({ addToCart }) => {
   useEffect(() => {
     const fetchItemsAndCategories = async () => {
       try {
-        const itemsResponse = await fetch(`${backendUrl}/product/items`);
+        const itemsResponse = await fetch(`${backendUrl}/items`);
         const itemsData = await itemsResponse.json();
         setItems(itemsData.items || []);
         
-        const categoriesResponse = await fetch(`${backendUrl}/product/items/categories`);
+        const categoriesResponse = await fetch(`${backendUrl}/categories`);
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
       } catch (error) {
