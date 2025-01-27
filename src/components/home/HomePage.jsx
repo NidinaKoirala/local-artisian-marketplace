@@ -136,10 +136,12 @@ const HomePage = ({ addToCart }) => {
           >
             Explore Collection
           </Link>
+          <div className="inline-block px-6 py-3 mt-4 text-sm font-semibold text-gray-900 rounded-lg shadow-md transition-colors" >
+          <OrderTracking />
+          </div>
         </div>
       </div>
-      {/* Order Tracking Section */}
-      <OrderTracking />
+
       {/* Top Sales Section */}
       <TopSales addToCart={addToCart} />
 

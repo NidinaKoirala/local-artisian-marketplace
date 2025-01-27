@@ -1,59 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const OrderTracking = () => {
-  const [orderId, setOrderId] = useState('');
-  const [trackingInfo, setTrackingInfo] = useState(null);
-  const [error, setError] = useState('');
+  const [orderId, setOrderId] = useState("");
+  const [orderData, setOrderData] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleTrackOrder = async () => {
     if (!orderId) {
-      setError('Please enter a valid Order ID.');
+      setError("Please enter a valid Order ID.");
       return;
     }
 
-    setError('');
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/order/track/${orderId}`);
-      const data = await response.json();
+    setLoading(true);
+    setError("");
+    setOrderData(null);
 
-      if (response.ok) {
-        setTrackingInfo(data);
-      } else {
-        setError(data.message || 'Unable to track the order.');
-      }
+    try {
+      const response = await axios.get(`${backendUrl}/order/timeline?orderId=${orderId}`);
+      setOrderData(response.data);
     } catch (err) {
-      setError('Something went wrong. Please try again later.');
+      setError(err.response?.data?.error || "No Order Found.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 mx-4 md:mx-20 my-8">
-      <h2 className="text-2xl font-bold text-indigo-700 mb-4">Track Your Order</h2>
-      <div className="flex flex-col md:flex-row items-center gap-4">
-        <input
-          type="text"
-          placeholder="Enter Order ID"
-          value={orderId}
-          onChange={(e) => setOrderId(e.target.value)}
-          className="w-full md:w-2/3 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-        <button
-          onClick={handleTrackOrder}
-          className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
-        >
-          Track Order
-        </button>
-      </div>
-      {error && <p className="text-red-500 mt-2">{error}</p>}
-      {trackingInfo && (
-        <div className="mt-6 p-4 border rounded-lg bg-gray-100">
-          <h3 className="font-semibold text-lg">Order Status</h3>
-          <p><strong>ID:</strong> {trackingInfo.id}</p>
-          <p><strong>Status:</strong> {trackingInfo.status}</p>
-          <p><strong>Expected Delivery:</strong> {trackingInfo.expectedDelivery}</p>
-        </div>
-      )}
+    <div className="flex items-center space-x-2">
+      <input
+        type="text"
+        placeholder="Enter Order ID"
+        value={orderId}
+        onChange={(e) => setOrderId(e.target.value)}
+        className="bg-gray-100 bg-opacity-70 border border-gray-300 text-gray-900 placeholder-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+      />
+      <button
+        onClick={handleTrackOrder}
+        className="bg-yellow-300 hover:bg-yellow-400 text-gray-900 font-semibold px-4 py-2 rounded-md shadow-md transition-colors"
+      >
+        {loading ? "Loading..." : "Track"}
+      </button>
+
+
+{/* Modal for No Order Found */}
+{error && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="bg-white border border-red-500 shadow-lg rounded-lg w-80 p-6 relative">
+      <button
+        onClick={() => setError("")}
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+      >
+        ✕
+      </button>
+      <h3 className="text-lg font-bold text-red-600 mb-2 text-center">Error</h3>
+      <p className="text-sm text-gray-700 text-center">{error}</p>
     </div>
+  </div>
+)}
+
+{/* Modal for Order Details */}
+{orderData && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="bg-white border border-indigo-500 shadow-lg rounded-lg w-80 p-6 relative">
+      <button
+        onClick={() => setOrderData(null)}
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+      >
+        ✕
+      </button>
+      <h3 className="text-lg font-bold text-indigo-600 mb-2 text-center">Order Details</h3>
+      <div className="text-sm space-y-2 text-center">
+        <p>
+          <strong>Order ID:</strong> {orderData.order.orderId}
+        </p>
+        <p>
+          <strong>Order Date:</strong>{" "}
+          {new Date(orderData.order.orderDate).toLocaleString()}
+        </p>
+        <p>
+          <strong>Customer Name:</strong> {orderData.order.customerName}
+        </p>
+        <p>
+          <strong>Item Name:</strong> {orderData.order.itemName}
+        </p>
+        <p>
+          <strong>Status:</strong>{" "}
+          <span className="text-indigo-600 font-medium">{orderData.order.status}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+)}
+</div>
   );
 };
 
