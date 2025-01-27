@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  React, { useState, useEffect } from 'react';
 import { assets } from '../../assets/assets';
 import { Link, useNavigate } from 'react-router-dom';
 import CartModal from '../cart/CartModal';
@@ -8,8 +8,9 @@ import Ourpolicies from '../details/Ourpolicies';
 import TopSales from './TopSales';
 import JustForYou from './JustForYou'; 
 import ShopByCategory from './ShopByCategory';
+import OrderTracking from './OrderTracking'; 
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
+const backendUrl = import.meta.env.VITE_BACKEND_URL
 
 const HomePage = ({ addToCart }) => {
   const [items, setItems] = useState([]);
@@ -32,11 +33,11 @@ const HomePage = ({ addToCart }) => {
   useEffect(() => {
     const fetchItemsAndCategories = async () => {
       try {
-        const itemsResponse = await fetch(`${backendUrl}/items`);
+        const itemsResponse = await fetch(`${backendUrl}/product/items`);
         const itemsData = await itemsResponse.json();
         setItems(itemsData.items || []);
         
-        const categoriesResponse = await fetch(`${backendUrl}/categories`);
+        const categoriesResponse = await fetch(`${backendUrl}/product/items/categories`);
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
       } catch (error) {
@@ -137,7 +138,8 @@ const HomePage = ({ addToCart }) => {
           </Link>
         </div>
       </div>
-
+      {/* Order Tracking Section */}
+      <OrderTracking />
       {/* Top Sales Section */}
       <TopSales addToCart={addToCart} />
 
