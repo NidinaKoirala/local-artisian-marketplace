@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaTachometerAlt, FaUsers, FaBoxOpen, FaStore, FaClipboardList } from "react-icons/fa";
+import { FaTachometerAlt, FaUsers, FaBoxOpen, FaStore, FaClipboardList, FaTags } from "react-icons/fa";
 
 const AdminSidebar = () => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -74,6 +74,15 @@ const AdminSidebar = () => {
         >
           <FaClipboardList size={20} />
           {isExpanded && <span className="ml-4">Manage Orders</span>}
+        </Link>
+        <Link
+          to="/admin/categories"
+          className={`flex items-center ${
+            isExpanded ? "justify-start" : "justify-center"
+          } py-2 px-4 hover:bg-gray-700 rounded transition-all`}
+        >
+          <FaTags size={20} />
+          {isExpanded && <span className="ml-4">Manage Categories</span>}
         </Link>
       </nav>
     </div>

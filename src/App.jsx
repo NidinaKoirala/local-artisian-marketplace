@@ -31,6 +31,7 @@ import AccessDenied from "./AccessDenied";
 import PrivateRoute from "./PrivateRoute";
 import SellerProductsPage from './components/seller/SellerProductsPage';
 import ManageOrders from "./components/admin/ManageOrders";
+import ManageCategories from "./components/admin/ManageCategories";
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -190,6 +191,14 @@ const App = () => {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/admin/categories"
+            element={
+              <PrivateRoute allowedRoles={["admin"]} userRole={role}>
+                <ManageCategories />
+              </PrivateRoute>
+            }
+          />          
           {/* Access Denied */}
           <Route path="/access-denied" element={<AccessDenied />} />
 
