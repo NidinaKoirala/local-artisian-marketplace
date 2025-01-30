@@ -19,7 +19,7 @@ const Collection = ({ addToCart }) => {
 
   const location = useLocation();
   const productsPerPage = 12;
-  const categoriesPerPage = 15;
+  const categoriesPerPage = 20;
   const navigate = useNavigate();
 
   useEffect(() => {
