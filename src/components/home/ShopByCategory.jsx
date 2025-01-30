@@ -13,7 +13,7 @@ const ShopByCategory = ({ loading = false, categories = [], items = [], handleCa
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-          {categories.slice(0, 6).map((category) => {
+          {categories.slice(0, 12).map((category) => {
             const latestProduct = items.find((item) => item.category === category);
             return (
               <div
