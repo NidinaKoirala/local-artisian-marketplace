@@ -164,6 +164,18 @@ const ProductPage = ({ addToCart, isLoggedIn, cartItems, setCartItems }) => {
             {product.shopName || "Unknown Shop"}
           </span>
         </p>
+        {/* Category Display */}
+        {product.category && (
+          <p className="text-gray-700 mb-4">
+            <strong>Category:</strong>{' '}
+            <span
+              className="text-blue-500 cursor-pointer underline"
+              onClick={() => navigate(`/category/${encodeURIComponent(product.category)}`)}
+            >
+              {product.category}
+            </span>
+          </p>
+        )}        
         {/* Rating Display */}
         {product.averageRating > 0 && renderStars(product.averageRating)}
 
