@@ -1,16 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProductSlider from '../products/ProductSlider';
 
 const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, renderStars }) => {
-  // Filter out products that are out of stock
-  const availableItems = items.filter((product) => product.inStock > 0);
+  const [randomItems, setRandomItems] = useState([]);
 
-  // Select the latest 9 available items
-  const latestItems = availableItems.slice(0, 9);
+  useEffect(() => {
+    if (items.length > 0) {
+      // Shuffle array and pick random 9 items only on component mount
+      const getRandomItems = (array, num) => {
+        const shuffled = [...array].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, num);
+      };
+
+      setRandomItems(getRandomItems(items.filter((product) => product.inStock > 0), 9));
+    }
+  }, [items]); // Run only when `items` change (e.g., first render)
 
   return (
-    <div className="bg-gray-50 px-6 md:px-12 py-10 rounded-lg shadow-md"> {/* Subtle white background for the whole component */}
+    <div className="bg-gray-50 px-6 md:px-12 py-10 rounded-lg shadow-md">
       <h2 className="text-4xl font-bold mb-6 text-left text-gray-800">Just for You</h2>
       {loading ? (
         <div className="flex justify-center my-6">
@@ -19,7 +27,7 @@ const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, 
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {latestItems.map((product) => (
+            {randomItems.map((product) => (
               <div 
                 key={product.id} 
                 className="bg-white p-4 rounded-xl shadow-md border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 transform hover:scale-105"
@@ -61,7 +69,7 @@ const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, 
               </div>
             ))}
           </div>
-          {availableItems.length > 9 && (
+          {items.length > 9 && (
             <div className="flex justify-center mt-8">
               <Link
                 to="/collection"
