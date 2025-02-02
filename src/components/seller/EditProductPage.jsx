@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -8,6 +9,11 @@ const EditProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+
+  // Cloudinary configuration from environment variables
+  const cloudinaryCloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const cloudinaryApiKey = import.meta.env.VITE_CLOUDINARY_API_KEY;
+  const cloudinaryUploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -44,19 +50,25 @@ const EditProductPage = () => {
     setMessage({ type: 'info', text: 'Uploading images...' });
 
     const uploadedImages = [];
+    const { signature, timestamp } = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/upload/signature`
+    ).then(res => res.json());
     for (let file of files) {
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('file', file);
+      formData.append('upload_preset', cloudinaryUploadPreset);
+      formData.append('api_key', cloudinaryApiKey);
+      formData.append('signature', signature);
+      formData.append('timestamp', timestamp);
 
       try {
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`, {
-          method: 'POST',
-          body: formData,
-        });
-        const data = await response.json();
+        const response = await axios.post(
+          `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
+          formData
+        );
 
-        if (data.success) {
-          uploadedImages.push(data.data.url);
+        if (response.data.secure_url) {
+          uploadedImages.push(response.data.secure_url);
         } else {
           setMessage({ type: 'error', text: 'Image upload failed. Please try again.' });
         }
@@ -74,17 +86,54 @@ const EditProductPage = () => {
     setMessage({ type: 'success', text: 'Images uploaded successfully!' });
   };
 
-  const handleRemoveImageUrl = (index) => {
-    setProduct((prevProduct) => {
-      const updatedImageUrls = [...prevProduct.imageUrls];
-      const removedImage = updatedImageUrls.splice(index, 1);
+  const handleRemoveImageUrl = async (index) => {
+    const imageUrl = product.imageUrls[index];
 
-      return {
-        ...prevProduct,
-        imageUrls: updatedImageUrls,
-        removedImages: [...prevProduct.removedImages, removedImage[0]],
-      };
-    });
+    // Delete image from Cloudinary
+    try {
+      const publicId = imageUrl.split('/').pop().split('.')[0]; // Extract public ID from URL
+      await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/destroy`,
+        {
+          public_id: publicId,
+          api_key: cloudinaryApiKey,
+          timestamp: Math.round(Date.now() / 1000),
+          signature: await generateCloudinarySignature(publicId),
+        }
+      );
+
+      // Remove image URL from state
+      setProduct((prevProduct) => {
+        const updatedImageUrls = [...prevProduct.imageUrls];
+        updatedImageUrls.splice(index, 1);
+
+        return {
+          ...prevProduct,
+          imageUrls: updatedImageUrls,
+          removedImages: [...prevProduct.removedImages, imageUrl],
+        };
+      });
+
+      setMessage({ type: 'success', text: 'Image removed successfully!' });
+    } catch (err) {
+      console.error('Error deleting image from Cloudinary:', err);
+      setMessage({ type: 'error', text: 'Failed to remove image. Please try again.' });
+    }
+  };
+
+  const generateCloudinarySignature = async (publicId) => {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174'}/upload/signature`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ publicId }),
+      }
+    );
+    const data = await response.json();
+    return data.signature;
   };
 
   const handleSave = async () => {
