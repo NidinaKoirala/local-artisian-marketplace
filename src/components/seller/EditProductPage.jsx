@@ -20,10 +20,10 @@ const EditProductPage = () => {
         }
         const data = await response.json();
 
-        // Ensure product and imageUrls are properly set
         setProduct({
           ...data,
-          imageUrls: data.photos ? data.photos.map((photo) => photo.url) : [''], // Extract photo URLs
+          imageUrls: data.photos ? data.photos.map((photo) => photo.url) : [],
+          removedImages: [],
         });
       } catch (err) {
         setError(err.message);
@@ -40,26 +40,50 @@ const EditProductPage = () => {
     setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
   };
 
-  const handleImageUrlChange = (index, value) => {
-    setProduct((prevProduct) => {
-      const updatedImageUrls = [...prevProduct.imageUrls];
-      updatedImageUrls[index] = value;
-      return { ...prevProduct, imageUrls: updatedImageUrls };
-    });
-  };
+  const handleImageUpload = async (files) => {
+    setMessage({ type: 'info', text: 'Uploading images...' });
 
-  const handleAddImageUrl = () => {
+    const uploadedImages = [];
+    for (let file of files) {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`, {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          uploadedImages.push(data.data.url);
+        } else {
+          setMessage({ type: 'error', text: 'Image upload failed. Please try again.' });
+        }
+      } catch (err) {
+        console.error('Error uploading image:', err);
+        setMessage({ type: 'error', text: 'Error uploading one or more images. Please try again.' });
+      }
+    }
+
     setProduct((prevProduct) => ({
       ...prevProduct,
-      imageUrls: [...prevProduct.imageUrls, ''],
+      imageUrls: [...prevProduct.imageUrls, ...uploadedImages],
     }));
+
+    setMessage({ type: 'success', text: 'Images uploaded successfully!' });
   };
 
   const handleRemoveImageUrl = (index) => {
     setProduct((prevProduct) => {
       const updatedImageUrls = [...prevProduct.imageUrls];
-      updatedImageUrls.splice(index, 1);
-      return { ...prevProduct, imageUrls: updatedImageUrls };
+      const removedImage = updatedImageUrls.splice(index, 1);
+
+      return {
+        ...prevProduct,
+        imageUrls: updatedImageUrls,
+        removedImages: [...prevProduct.removedImages, removedImage[0]],
+      };
     });
   };
 
@@ -73,7 +97,7 @@ const EditProductPage = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(product),
+          body: JSON.stringify({ ...product, removedImages: product.removedImages }),
         }
       );
 
@@ -83,7 +107,6 @@ const EditProductPage = () => {
 
       setMessage({ type: 'success', text: 'Product updated successfully!' });
 
-      // Redirect to /seller page after a short delay
       setTimeout(() => {
         navigate('/seller');
       }, 2000);
@@ -104,89 +127,37 @@ const EditProductPage = () => {
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-2xl font-semibold mb-4">Edit Product</h1>
       {message && (
-        <div
-          className={`p-4 rounded-lg mb-4 ${
-            message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}
-        >
+        <div className={`p-4 rounded-lg mb-4 ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
           {message.text}
         </div>
       )}
       <div className="bg-white shadow-lg rounded-lg p-6 space-y-4">
-        <div>
-          <label className="block text-gray-700">Title</label>
-          <input
-            type="text"
-            name="title"
-            value={product.title || ''}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Price</label>
-          <input
-            type="number"
-            name="price"
-            value={product.price || ''}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Stock</label>
-          <input
-            type="number"
-            name="inStock"
-            value={product.inStock || ''}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Description</label>
-          <textarea
-            name="description"
-            value={product.description || ''}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
-          ></textarea>
-        </div>
-        <div>
-          <label className="block text-gray-700">Image URLs</label>
+        <label className="block text-gray-700">Title</label>
+        <input type="text" name="title" value={product.title || ''} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg p-2" />
+        <label className="block text-gray-700">Price</label>
+        <input type="number" name="price" value={product.price || ''} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg p-2" />
+        <label className="block text-gray-700">Stock</label>
+        <input type="number" name="inStock" value={product.inStock || ''} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg p-2" />
+        <label className="block text-gray-700">Description</label>
+        <textarea name="description" value={product.description || ''} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg p-2"></textarea>
+        <label className="block text-gray-700">Upload New Images</label>
+        <input type="file" accept="image/*" multiple onChange={(e) => handleImageUpload(e.target.files)} className="mb-2" />
+        <label className="block text-blue-600 font-bold">Existing Photos</label>
+        <div className="flex flex-wrap gap-2">
           {product.imageUrls.map((url, index) => (
-            <div key={index} className="flex items-center space-x-2 mb-2">
-              <input
-                type="text"
-                value={url}
-                onChange={(e) => handleImageUrlChange(index, e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-2"
-              />
+            <div key={index} className="flex flex-col items-center">
+              <img src={url} alt="Product preview" className="w-20 h-20 object-cover border rounded-lg" />
               <button
                 type="button"
                 onClick={() => handleRemoveImageUrl(index)}
-                className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600"
+                className="mt-1 bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600"
               >
                 Remove
               </button>
             </div>
           ))}
-          <button
-            type="button"
-            onClick={handleAddImageUrl}
-            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
-            Add Another URL
-          </button>
-        </div>
-        <div className="flex justify-end">
-          <button
-            onClick={handleSave}
-            className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors"
-          >
-            Save Changes
-          </button>
-        </div>
+        </div>        
+        <button onClick={handleSave} className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">Save Changes</button>
       </div>
     </div>
   );
