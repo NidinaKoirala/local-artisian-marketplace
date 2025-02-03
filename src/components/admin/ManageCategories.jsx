@@ -2,21 +2,21 @@ import React, { useEffect, useState } from 'react';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
 import { fetchData, sendData, deleteData } from './utils/api';
+import { FiEdit, FiTrash2, FiPlus, FiX, FiTag, FiAlertTriangle, FiFolderPlus } from 'react-icons/fi';
 
 const ManageCategories = () => {
-  const [categories, setCategories] = useState([]); // Categories as an array of strings
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({ name: '' });
   const [feedback, setFeedback] = useState({ message: '', type: '' });
   const [confirmDelete, setConfirmDelete] = useState(null);
 
-  // Fetch all categories
   useEffect(() => {
     setLoading(true);
     fetchData('/admin/categories')
       .then((data) => {
-        setCategories(data); // Response is an array of strings
+        setCategories(data);
         setLoading(false);
       })
       .catch((error) => {
@@ -26,7 +26,6 @@ const ManageCategories = () => {
       });
   }, []);
 
-  // Handle delete category
   const handleDelete = (categoryName) => {
     deleteData(`/admin/categories/${categoryName}`)
       .then(() => {
@@ -40,25 +39,21 @@ const ManageCategories = () => {
       .finally(() => setConfirmDelete(null));
   };
 
-  // Handle edit category
   const handleEdit = (categoryName) => {
     setEditingCategory(categoryName);
     setFormData({ name: categoryName });
   };
 
-  // Handle adding new category
   const handleAddCategory = () => {
     setEditingCategory(null);
     setFormData({ name: '' });
   };
 
-  // Handle form change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle form submission for adding/updating category
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -67,19 +62,15 @@ const ManageCategories = () => {
       return;
     }
 
-    const url = editingCategory
-      ? `/admin/categories/${editingCategory}`
-      : '/admin/categories';
+    const url = editingCategory ? `/admin/categories/${editingCategory}` : '/admin/categories';
     const method = editingCategory ? 'PUT' : 'POST';
 
     sendData(url, { name: formData.name }, method)
       .then(() => {
         if (editingCategory) {
-          setCategories(
-            categories.map((category) =>
-              category === editingCategory ? formData.name : category
-            )
-          );
+          setCategories(categories.map((category) => 
+            category === editingCategory ? formData.name : category
+          ));
         } else {
           setCategories([...categories, formData.name]);
         }
@@ -97,146 +88,161 @@ const ManageCategories = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-gray-50 font-sans">
       <AdminSidebar />
-      <div className="flex-grow p-6">
+      <div className="flex-grow">
         <AdminHeader title="Manage Categories" />
-
-        {/* Add New Category Button */}
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={handleAddCategory}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Add New Category
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="text-blue-500 text-center mt-6">Loading categories...</div>
-        ) : (
-          <table className="w-full mt-4 border border-gray-300 text-left">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((category, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="border p-2">{category}</td>
-                  <td className="border p-2">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => setConfirmDelete(category)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-
-        {/* Feedback Modal */}
-        {feedback.message && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div
-              className={`bg-white p-6 rounded shadow-lg text-center ${
-                feedback.type === 'success' ? 'border-green-500' : 'border-red-500'
-              }`}
+        <div className="p-6 xl:p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Product Categories</h2>
+            <button
+              onClick={handleAddCategory}
+              className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
             >
-              <h3
-                className={`text-lg font-bold ${
-                  feedback.type === 'success' ? 'text-green-500' : 'text-red-500'
-                }`}
-              >
-                {feedback.type === 'success' ? 'Success' : 'Error'}
-              </h3>
-              <p className="mt-2">{feedback.message}</p>
-              <button
-                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                onClick={() => setFeedback({ message: '', type: '' })}
-              >
-                Close
-              </button>
-            </div>
+              <FiPlus className="mr-2" /> Add Category
+            </button>
           </div>
-        )}
 
-        {/* Delete Confirmation Modal */}
-        {confirmDelete && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded shadow-lg text-center">
-              <h3 className="text-lg font-bold text-red-500">Confirm Deletion</h3>
-              <p className="mt-2">Are you sure you want to delete this category?</p>
-              <div className="mt-4 flex justify-center gap-4">
+          {loading ? (
+            <div className="flex h-96 items-center justify-center">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-96 text-gray-500">
+              <FiFolderPlus className="w-16 h-16 mb-4" />
+              <p className="text-lg">No categories found</p>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">Category Name</th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {categories.map((category, index) => (
+                      <tr key={index} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 text-sm text-gray-700 font-medium">{category}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEdit(category)}
+                              className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                            >
+                              <FiEdit size={18} />
+                            </button>
+                            <button
+                              onClick={() => setConfirmDelete(category)}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <FiTrash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Feedback Modal */}
+          {feedback.message && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className={`bg-white p-6 rounded-lg shadow-lg w-96 text-center ${feedback.type === 'success' ? 'border-green-500' : 'border-red-500'}`}>
+                <h3 className={`text-lg font-bold ${feedback.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+                  {feedback.type === 'success' ? 'Success' : 'Error'}
+                </h3>
+                <p className="mt-2 text-gray-600">{feedback.message}</p>
                 <button
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  onClick={() => setConfirmDelete(null)}
+                  className="mt-4 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  onClick={() => setFeedback({ message: '', type: '' })}
                 >
-                  Cancel
-                </button>
-                <button
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                  onClick={() => handleDelete(confirmDelete)}
-                >
-                  Confirm
+                  Close
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Add/Edit Category Modal */}
-        {(editingCategory || formData.name) && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded shadow-lg w-1/3 text-center">
-              <h3 className="text-lg font-bold mb-4">
-                {editingCategory ? 'Edit Category' : 'Add Category'}
-              </h3>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label className="block mb-2">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full border p-2 rounded"
-                    required
-                  />
-                </div>
-                <div className="flex justify-end gap-4">
+          {/* Delete Confirmation Modal */}
+          {confirmDelete && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+                <h3 className="text-lg font-bold text-red-500 flex items-center justify-center gap-2">
+                  <FiAlertTriangle /> Confirm Deletion
+                </h3>
+                <p className="mt-2 text-gray-600">Are you sure you want to delete this category?</p>
+                <div className="mt-4 flex justify-center gap-4">
                   <button
-                    type="button"
-                    onClick={() => {
-                      setEditingCategory(null);
-                      setFormData({ name: '' });
-                    }}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    onClick={() => setConfirmDelete(null)}
                   >
                     Cancel
                   </button>
                   <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    onClick={() => handleDelete(confirmDelete)}
                   >
-                    Save
+                    Confirm
                   </button>
                 </div>
-              </form>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Add/Edit Category Modal */}
+          {(editingCategory || formData.name) && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold">
+                    {editingCategory ? 'Edit Category' : 'New Category'}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setFormData({ name: '' });
+                    }}
+                    className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <FiX size={20} />
+                  </button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Category Name</label>
+                      <div className="flex items-center border rounded-lg p-2">
+                        <FiTag className="text-gray-400 mr-2" />
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          className="w-full outline-none"
+                          placeholder="Enter category name"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      >
+                        {editingCategory ? 'Update' : 'Create'}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
