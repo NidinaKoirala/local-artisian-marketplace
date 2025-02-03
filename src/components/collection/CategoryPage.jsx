@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ProductSlider from '../products/ProductSlider';
 import CartModal from '../cart/CartModal';
+import { ChevronLeftIcon, ChevronRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 
@@ -51,74 +53,103 @@ const CategoryPage = ({ addToCart }) => {
   const handlePreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-100 px-6 md:px-12 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-4xl font-bold text-gray-800 capitalize">{category}</h2>
-        <button 
-          onClick={() => navigate("/collection")}
-          className="text-blue-600 text-sm font-semibold hover:underline"
-        >
-          Back to Collection
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center my-8">
-          <p className="text-gray-500 text-lg">Loading products...</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
-          {currentProducts.length > 0 ? (
-            currentProducts.map((product) => (
-              <div 
-                key={product.id} 
-                className="bg-white shadow-md rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 border border-gray-200"
-                onClick={() => handleProductClick(product)}
+        <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center gap-4 mb-8">
+              <button
+                onClick={() => navigate("/collection")}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
               >
-                <ProductSlider images={product.photos.map(photo => photo.url)} />
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg text-gray-700 mb-2">{product.title}</h3>
-                  <p className="text-gray-600 font-medium mb-2">Price: ${product.price}</p>
+                <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+              </button>
+              <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {category.replace(/-/g, ' ')}
+              </h2>
+            </div>
+    
+            {loading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="bg-gray-200 aspect-square rounded-xl" />
+                    <div className="h-4 bg-gray-200 rounded mt-3 w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded mt-2 w-1/4" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                  {currentProducts.length > 0 ? (
+                    currentProducts.map((product) => (
+                      <div 
+                        key={product.id}
+                        className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden"
+                      >
+                        <div 
+                          className="relative overflow-hidden cursor-pointer"
+                          onClick={() => handleProductClick(product)}
+                        >
+                          <ProductSlider 
+                            images={product.photos.map(photo => photo.url)}
+                            className="aspect-square object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+                        
+                        <div className="p-4">
+                          <h3 className="font-semibold text-gray-800 line-clamp-1 mb-1">
+                            {product.title}
+                          </h3>
+                          <p className="text-lg font-bold text-blue-600 mb-4">
+                            ${product.price}
+                          </p>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                            className="w-full bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-md"
+                            >
+                            <span>Add to Cart</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-20">
+                      <p className="text-gray-500 text-xl">No products found in this category</p>
+                    </div>
+                  )}
+                </div>
+    
+                <div className="flex items-center justify-between mt-8 px-4">
                   <button
-                    onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
-                    className="mt-3 w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-500 transition duration-200"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Add to Cart
+                    <ChevronLeftIcon className="h-5 w-5" />
+                    <span className="hidden sm:inline">Previous</span>
+                  </button>
+                  
+                  <span className="text-sm font-medium text-gray-600">
+                    Page {currentPage} of {Math.ceil(products.length / productsPerPage)}
+                  </span>
+    
+                  <button
+                    onClick={handleNextPage}
+                    disabled={indexOfLastProduct >= products.length}
+                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <ChevronRightIcon className="h-5 w-5" />
                   </button>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500 text-center col-span-full">No products found in this category.</p>
-          )}
+              </>
+            )}
+    
+            {showModal && <CartModal closeModal={() => setShowModal(false)} />}
+          </div>
         </div>
-      )}
-
-      <div className="flex justify-between items-center mt-10">
-        <button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          className={`px-4 py-2 rounded-md font-semibold transition-colors duration-200 ${
-            currentPage === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-500'
-          }`}
-        >
-          Previous
-        </button>
-        <span className="text-gray-600 font-medium">Page {currentPage}</span>
-        <button
-          onClick={handleNextPage}
-          disabled={indexOfLastProduct >= products.length}
-          className={`px-4 py-2 rounded-md font-semibold transition-colors duration-200 ${
-            indexOfLastProduct >= products.length ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-500'
-          }`}
-        >
-          Next
-        </button>
-      </div>
-
-      {showModal && <CartModal closeModal={() => setShowModal(false)} />}
-    </div>
-  );
-};
-
-export default CategoryPage;
+      );
+    };
+    
+    export default CategoryPage;
