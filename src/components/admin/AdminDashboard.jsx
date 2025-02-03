@@ -99,81 +99,93 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-gray-50 font-sans">
       <AdminSidebar />
-      <div className="flex-grow bg-gray-100 p-6">
+      <div className="flex-grow">
         <AdminHeader title="Dashboard" />
-        {loading ? (
-          <div className="flex justify-center items-center h-96">
-            <span className="text-blue-500 text-lg font-semibold">
-              Loading Dashboard...
-            </span>
-          </div>
-        ) : (
-          <>
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-6">
-              {statCards.map((card, index) => (
-                <div
-                  key={index}
-                  className={`p-4 rounded-lg shadow-lg ${card.color} flex items-center justify-between`}
-                >
-                  <div>
-                    <h3 className="text-white text-lg font-bold">
-                      {card.title}
-                    </h3>
-                    <p className="text-white text-3xl font-semibold">
-                      {card.value}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-white rounded-full">
-                    {card.icon}
-                  </div>
-                </div>
-              ))}
+        <div className="p-6 xl:p-8">
+          {loading ? (
+            <div className="flex h-96 items-center justify-center">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
             </div>
+          ) : (
+            <>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {statCards.map((card, index) => (
+                  <div
+                    key={index}
+                    className={`relative overflow-hidden rounded-xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl ${card.color}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-white/90">{card.title}</p>
+                        <p className="mt-2 text-3xl font-bold text-white">{card.value}</p>
+                      </div>
+                      <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+                        {React.cloneElement(card.icon, { className: "text-white/80" })}
+                      </div>
+                    </div>
+                    <div className="absolute -right-6 -top-6 h-16 w-16 rounded-full bg-white/10"></div>
+                  </div>
+                ))}
+              </div>
 
-            {/* Details Overview */}
-            <div className="mt-10 bg-white shadow-lg p-6 rounded-lg">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Details Overview
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    Sellers Overview
-                  </h3>
-                  <p className="text-gray-600">Total Sellers: {stats.sellers}</p>
-                  <p className="text-gray-600">
-                    Products Per Seller:{" "}
-                    {(stats.products / stats.sellers || 0).toFixed(1)}
-                  </p>
+              {/* Overview Section */}
+              <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                {/* Sellers Overview */}
+                <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-800">Sellers Overview</h3>
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Total Sellers</span>
+                      <span className="font-medium text-gray-800">{stats.sellers}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Avg. Products</span>
+                      <span className="font-medium text-gray-800">
+                        {(stats.products / stats.sellers || 0).toFixed(1)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    Products Overview
-                  </h3>
-                  <p className="text-gray-600">Total Products: {stats.products}</p>
+
+                {/* Products Overview */}
+                <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-800">Products Overview</h3>
+                  <div className="mt-4">
+                    <p className="text-2xl font-bold text-gray-800">{stats.products}</p>
+                    <p className="mt-2 text-sm text-gray-600">Total listed products</p>
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    Roles Distribution
-                  </h3>
-                  <p className="text-gray-600">Admins: {stats.admins}</p>
-                  <p className="text-gray-600">
-                    Deliverers: {stats.deliverers}
-                  </p>
+
+                {/* Roles Distribution */}
+                <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-800">Roles Distribution</h3>
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Admins</span>
+                      <span className="font-medium text-gray-800">{stats.admins}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Deliverers</span>
+                      <span className="font-medium text-gray-800">{stats.deliverers}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    Buyers Overview
-                  </h3>
-                  <p className="text-gray-600">Total Buyers: {stats.buyers}</p>
+
+                {/* Buyers Overview */}
+                <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-800">Buyers Overview</h3>
+                  <div className="mt-4">
+                    <p className="text-2xl font-bold text-gray-800">{stats.buyers}</p>
+                    <p className="mt-2 text-sm text-gray-600">Active buyers</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
