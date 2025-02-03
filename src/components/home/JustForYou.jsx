@@ -20,7 +20,7 @@ const JustForYou = ({ items = [], loading, handleProductClick, handleAddToCart, 
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-end mb-8">
           <h2 className="text-4xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4 md:mb-0">
-            Curated for You
+            Just for You
           </h2>
           <Link
             to="/collection"
