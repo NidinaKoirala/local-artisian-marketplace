@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { assets } from "../../assets/assets";
-import { FaInstagram, FaFacebook, FaTwitter } from "react-icons/fa";
+import { FaInstagram, FaFacebook, FaTwitter, FaArrowUp } from "react-icons/fa";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -11,118 +11,105 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-50 text-gray-700 py-12 px-5 text-center sm:text-left border-t border-gray-200 shadow-sm">
-      <div className="container mx-auto grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr] gap-10">
-
-        {/* Logo and Description */}
-        <div className="flex flex-col items-center sm:items-start">
-          <img src={assets.logo} className="mb-5 w-32 opacity-90" alt="Logo" />
-          <p className="text-gray-600 text-sm leading-relaxed">
-            Celebrating local artisans, preserving traditions, and promoting sustainability—discover unique, handcrafted creations that make a difference with every purchase.
+    <footer className="bg-white text-gray-600 py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        {/* Brand Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <img 
+              src={assets.logo} 
+              className="w-10 h-10 object-contain" 
+              alt="Hastakala Logo" 
+            />
+            <span className="text-xl font-bold text-gray-800">Hastakala</span>
+          </div>
+          <p className="text-sm leading-relaxed text-gray-500">
+            Celebrating local artisans, preserving traditions, and promoting sustainability. 
+            Discover unique, handcrafted creations that make a difference.
           </p>
+          <div className="flex space-x-4">
+            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors">
+              <FaFacebook className="w-5 h-5" />
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-pink-600 transition-colors">
+              <FaInstagram className="w-5 h-5" />
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors">
+              <FaTwitter className="w-5 h-5" />
+            </a>
+          </div>
         </div>
 
-        {/* Navigation Items */}
-        <div>
-          <h4 className="text-gray-800 font-semibold mb-3">COMPANY</h4>
-          <ul className="space-y-2 text-gray-600 text-sm">
-            <li>
-              <Link
-                to="/"
-                onClick={scrollToTop}
-                className="hover:text-gray-800 transition-colors"
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/collection"
-                onClick={scrollToTop}
-                className="hover:text-gray-800 transition-colors"
-              >
-                Collection
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/about"
-                onClick={scrollToTop}
-                className="hover:text-gray-800 transition-colors"
-              >
-                About Us
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/contact"
-                onClick={scrollToTop}
-                className="hover:text-gray-800 transition-colors"
-              >
-                Contact
-              </Link>
-            </li>
-          </ul>
+        {/* Quick Links */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-800 uppercase">Company</h3>
+          <nav className="flex flex-col space-y-2">
+            <Link to="/" onClick={scrollToTop} className="text-sm hover:text-gray-800 transition-colors">
+              Home
+            </Link>
+            <Link to="/collection" onClick={scrollToTop} className="text-sm hover:text-gray-800 transition-colors">
+              Collection
+            </Link>
+            <Link to="/about" onClick={scrollToTop} className="text-sm hover:text-gray-800 transition-colors">
+              About Us
+            </Link>
+            <Link to="/contact" onClick={scrollToTop} className="text-sm hover:text-gray-800 transition-colors">
+              Contact
+            </Link>
+          </nav>
         </div>
 
-        {/* Get In Touch Section */}
-        <div>
-          <h4 className="text-gray-800 font-semibold mb-3">GET IN TOUCH</h4>
-          <ul className="space-y-2 text-gray-600 text-sm">
-            <li>98000000000</li>
-            <li>
-              <a
-                href="mailto:hastakala@gmail.com"
-                className="hover:text-gray-800 transition-colors"
-              >
-                hastakala@gmail.com
-              </a>
-            </li>
-            <li className="flex items-center space-x-3">
-              <FaFacebook className="text-gray-600 hover:text-gray-800 transition-colors" />
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-800 transition-colors"
-              >
-                Facebook
-              </a>
-            </li>
-            <li className="flex items-center space-x-3">
-              <FaInstagram className="text-gray-600 hover:text-gray-800 transition-colors" />
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-800 transition-colors"
-              >
-                Instagram
-              </a>
-            </li>
-            <li className="flex items-center space-x-3">
-              <FaTwitter className="text-gray-600 hover:text-gray-800 transition-colors" />
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-800 transition-colors"
-              >
-                Twitter
-              </a>
-            </li>
-          </ul>
+        {/* Contact Info */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-800 uppercase">Contact</h3>
+          <div className="space-y-2">
+            <p className="text-sm">Kamaladi Marg, Kathmandu</p>
+            <a href="tel:9800000000" className="block text-sm hover:text-gray-800 transition-colors">
+              +977 980 000 0000
+            </a>
+            <a href="mailto:hastakala@gmail.com" className="block text-sm hover:text-gray-800 transition-colors">
+              hastakala@gmail.com
+            </a>
+          </div>
+        </div>
+
+        {/* Newsletter */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-800 uppercase">Newsletter</h3>
+          <form className="flex flex-col space-y-3">
+            <input 
+              type="email" 
+              placeholder="Enter your email" 
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm"
+            />
+            <button 
+              type="submit"
+              className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+            >
+              Subscribe
+            </button>
+          </form>
         </div>
       </div>
 
       {/* Copyright Section */}
-      <div className="bg-gray-100 py-4 mt-10 text-center border-t border-gray-200">
-        <p className="text-gray-500 text-xs">
-          &copy; {currentYear} नेपाली हस्त कला. All rights reserved.
-        </p>
-      </div>
+      <div className="border-t border-gray-100 pt-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-xs text-gray-500">
+            © 2025 नेपाली हस्त कला. All rights reserved.
+          </p>
+          <div className="flex justify-end">
+          <button 
+            onClick={scrollToTop}
+            className="flex text-gray-500 hover:text-gray-800 transition-colors text-sm"
+          >
+            Back to Top
+            <FaArrowUp className="ml-2 w-3 h-3" />
+          </button>
+        </div>      
+        </div>        
+      </div>      
     </footer>
   );
 };
-
 export default Footer;
