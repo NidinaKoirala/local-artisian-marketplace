@@ -6,7 +6,7 @@ const SellerOrders = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreOrders, setHasMoreOrders] = useState(true);
-  const ordersPerPage = 2;
+  const ordersPerPage = 7;
 
   const fetchOrders = async (page) => {
     setLoading(true);
