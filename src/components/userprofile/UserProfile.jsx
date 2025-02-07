@@ -201,35 +201,50 @@ const UserProfile = () => {
   if (!user) {
     return <p className="text-center mt-10">Loading...</p>;
   }
-
-  return (
-    <div className="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
-      <SuccessMessage message={successMessage} />
-      <h2 className="text-3xl font-semibold text-gray-800 mb-4">Your Orders</h2>
-      <OrderHistoryTable
-        orderHistory={orderHistory}
-        loadingOrders={loadingOrders}
-        handleProductClick={handleProductClick}
-        reviews={reviews}
-      />
-      {selectedProduct && (
-        <ReviewModal
-          selectedProduct={selectedProduct}
-          review={review}
-          setReview={setReview}
-          handleReviewSubmit={handleReviewSubmit}
-          closeModal={() => setSelectedProduct(null)}
-        />
-      )}
-      <button
-        onClick={toggleProfileDetails}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors"
-      >
-        {showProfileDetails ? 'Hide Profile Details' : 'Show Profile Details'}
-      </button>
-      {showProfileDetails && <ProfileDetails user={user} />}
-    </div>
-  );
-};
-
-export default UserProfile;
+    return (
+      <div className="min-h-screen bg-gray-50 font-sans">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <SuccessMessage message={successMessage} />
+          
+          <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
+                Order History
+              </h2>
+              <button
+                onClick={toggleProfileDetails}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-105"
+              >
+                {showProfileDetails ? 'Hide Profile' : 'View Profile'}
+              </button>
+            </div>
+  
+            <OrderHistoryTable
+              orderHistory={orderHistory}
+              loadingOrders={loadingOrders}
+              handleProductClick={handleProductClick}
+              reviews={reviews}
+            />
+          </div>
+  
+          {showProfileDetails && (
+            <div className="mt-6 bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+              <ProfileDetails user={user} />
+            </div>
+          )}
+        </div>
+  
+        {selectedProduct && (
+          <ReviewModal
+            selectedProduct={selectedProduct}
+            review={review}
+            setReview={setReview}
+            handleReviewSubmit={handleReviewSubmit}
+            closeModal={() => setSelectedProduct(null)}
+          />
+        )}
+      </div>
+    );
+  };
+  
+  export default UserProfile;
