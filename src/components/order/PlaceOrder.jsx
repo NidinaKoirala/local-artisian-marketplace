@@ -4,7 +4,7 @@ import StripePayment from './StripePayment';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 
-const PlaceOrder = ({ cartItems = [], setCartItems }) => {
+const PlaceOrder = ({ cartItems: propCartItems = [], setCartItems }) => {
   const [user, setUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -23,11 +23,11 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
   const product = location.state?.product;
   const quantity = location.state?.quantity || 1;
 
-  const orderItems = product ? [{ ...product, quantity }] : cartItems;
+  const orderItems = product ? [{ ...product, quantity }] : (location.state?.cartItems || propCartItems);
 
-  const itemsTotal = orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
-  const deliveryFee = paymentMethod === 'COD' ? CODCharge : 0;
-  const grandTotal = itemsTotal + deliveryFee;
+  const itemsTotal = location.state?.cartTotal || orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const deliveryFee = location.state?.shippingFee || (paymentMethod === 'COD' ? CODCharge : 0);
+  const grandTotal = location.state?.grandTotal || (itemsTotal + deliveryFee);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -53,6 +53,20 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
           postalCode: data.postalCode,
           country: data.country,
         });
+
+        // Retrieve cart items from localStorage if available
+        const tempCartItems = JSON.parse(localStorage.getItem('tempCartItems'));
+        const tempCartTotal = JSON.parse(localStorage.getItem('tempCartTotal'));
+        const tempShippingFee = JSON.parse(localStorage.getItem('tempShippingFee'));
+        const tempGrandTotal = JSON.parse(localStorage.getItem('tempGrandTotal'));
+
+        if (tempCartItems) {
+          setCartItems(tempCartItems);
+          localStorage.removeItem('tempCartItems');
+          localStorage.removeItem('tempCartTotal');
+          localStorage.removeItem('tempShippingFee');
+          localStorage.removeItem('tempGrandTotal');
+        }
       } catch (error) {
         console.error(error);
         setOrderMessage('Error loading user details. Please try again later.');
@@ -60,7 +74,8 @@ const PlaceOrder = ({ cartItems = [], setCartItems }) => {
     };
 
     fetchUserDetails();
-  }, []);
+  }, [setCartItems]);
+
 
   const handleEditAddressToggle = () => setIsEditingAddress((prev) => !prev);
 
