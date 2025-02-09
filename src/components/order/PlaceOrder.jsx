@@ -4,18 +4,19 @@ import StripePayment from './StripePayment';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5174';
 
-const PlaceOrder = ({ cartItems: propCartItems = [], setCartItems }) => {
+const PlaceOrder = ({ cartItems: propCartItems = [], setCartItems = () => {} }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [addressData, setAddressData] = useState({});
   const [orderMessage, setOrderMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('COD'); // Default payment method
+  const [paymentMethod, setPaymentMethod] = useState('COD');
   const [showStripePayment, setShowStripePayment] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  const CODCharge = 1.25; // Delivery Fee for COD
+  const CODCharge = 1.25;
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,6 +36,7 @@ const PlaceOrder = ({ cartItems: propCartItems = [], setCartItems }) => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
         if (!storedUser) {
           setShowLoginModal(true);
+          setLoading(false);
           return;
         }
 
@@ -55,27 +57,24 @@ const PlaceOrder = ({ cartItems: propCartItems = [], setCartItems }) => {
         });
 
         // Retrieve cart items from localStorage if available
-        const tempCartItems = JSON.parse(localStorage.getItem('tempCartItems'));
-        const tempCartTotal = JSON.parse(localStorage.getItem('tempCartTotal'));
-        const tempShippingFee = JSON.parse(localStorage.getItem('tempShippingFee'));
-        const tempGrandTotal = JSON.parse(localStorage.getItem('tempGrandTotal'));
-
-        if (tempCartItems) {
-          setCartItems(tempCartItems);
-          localStorage.removeItem('tempCartItems');
-          localStorage.removeItem('tempCartTotal');
-          localStorage.removeItem('tempShippingFee');
-          localStorage.removeItem('tempGrandTotal');
-        }
+      const tempCartItems = JSON.parse(localStorage.getItem('tempCartItems'));
+      if (tempCartItems && typeof setCartItems === 'function') {
+        setCartItems(tempCartItems);
+        localStorage.removeItem('tempCartItems');
+        localStorage.removeItem('tempCartTotal');
+        localStorage.removeItem('tempShippingFee');
+        localStorage.removeItem('tempGrandTotal');
+      }
       } catch (error) {
         console.error(error);
         setOrderMessage('Error loading user details. Please try again later.');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserDetails();
   }, [setCartItems]);
-
 
   const handleEditAddressToggle = () => setIsEditingAddress((prev) => !prev);
 
