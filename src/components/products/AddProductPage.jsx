@@ -146,7 +146,8 @@ const AddProductPage = () => {
 
   const closeModalAndRedirect = () => {
     setShowSuccessModal(false);
-    navigate('/seller');
+    navigate('/');
+    window.location.reload();
   };
 
   return (
